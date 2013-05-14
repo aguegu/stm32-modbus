@@ -25,6 +25,7 @@
 								<option id="org.eclipse.cdt.cross.arm.gnu.assembler.option.include.paths.148215607" name="Include paths (-I)" superClass="org.eclipse.cdt.cross.arm.gnu.assembler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/demo/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../Libraries/STM32F10x_StdPeriph_Driver/inc&quot;"/>
 								</option>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.assembler.base.input.269896398" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.assembler.base.input"/>
 							</tool>
@@ -33,6 +34,7 @@
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.include.paths.1782655219" name="Include paths (-I)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/demo/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../Libraries/STM32F10x_StdPeriph_Driver/inc&quot;"/>
 								</option>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.input.1314100245" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.c.compiler.base.input"/>
 							</tool>
@@ -41,6 +43,7 @@
 								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.include.paths.1054217147" name="Include paths (-I)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/demo/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../Libraries/STM32F10x_StdPeriph_Driver/inc&quot;"/>
 								</option>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.438247836" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 							</tool>
