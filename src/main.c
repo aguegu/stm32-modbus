@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    Project/STM32F10x_StdPeriph_Template/main.c
- * @author  MCD Application Team
+ * @file    demo/main.c
+ * @author  aGuegu
  * @version V3.5.0
- * @date    08-April-2011
+ * @date    May 15, 2013
  * @brief   Main program body
  ******************************************************************************
  * @attention
@@ -28,6 +28,7 @@ void Delay(u32 count) {
 		;
 }
 
+// Led on PB5 and PE5
 int main(void) {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOE, ENABLE);
@@ -37,11 +38,7 @@ int main(void) {
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_SetBits(GPIOB, GPIO_Pin_5 );
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
-	GPIO_SetBits(GPIOE, GPIO_Pin_5 );
 
 	while (1) {
 		GPIO_ResetBits(GPIOB, GPIO_Pin_5 );
