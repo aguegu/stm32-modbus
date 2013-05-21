@@ -23,6 +23,10 @@
 #ifndef __STM32F10x_CONF_H
 #define __STM32F10x_CONF_H
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /* Includes ------------------------------------------------------------------*/
 /* Uncomment/Comment the line below to enable/disable peripheral header file inclusion */
 //#include "stm32f10x_adc.h"
@@ -71,6 +75,10 @@
 #else
   #define assert_param(expr) ((void)0)
 #endif /* USE_FULL_ASSERT */
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif /* __STM32F10x_CONF_H */
 
