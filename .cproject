@@ -101,7 +101,7 @@
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.c.compiler.release.867174120" name="ARM Sourcery Linux GCC C Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.c.compiler.release">
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.optimization.level.931130655" name="Optimization level" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.optimization.level" value="org.eclipse.cdt.cross.arm.gnu.base.option.optimization.level.size" valueType="enumerated"/>
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def.168829473" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="STM32F10X_HD"/>
+									<listOptionValue builtIn="false" value="STM32F10X_MD_VL"/>
 									<listOptionValue builtIn="false" value="USE_STDPERIPH_DRIVER"/>
 								</option>
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.include.paths.1883630501" name="Include paths (-I)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.include.paths" valueType="includePath">
@@ -133,7 +133,9 @@
 								</inputType>
 							</tool>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.archiver.base.540335251" name="ARM Sourcery Linux GCC Archiver" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.archiver.base"/>
-							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} " id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.createflash.release.1645960072" name="ARM Sourcery Linux GNU Create Flash Image" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.createflash.release"/>
+							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} " id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.createflash.release.1645960072" name="ARM Sourcery Linux GNU Create Flash Image" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.createflash.release">
+								<option id="org.eclipse.cdt.cross.arm.gnu.createflash.out.choice.1304488469" superClass="org.eclipse.cdt.cross.arm.gnu.createflash.out.choice" value="org.eclipse.cdt.cross.arm.gnu.createflash.out.choice.binary" valueType="enumerated"/>
+							</tool>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.createlisting.release.353218519" name="ARM Sourcery Linux GNU Create Listing" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.createlisting.release"/>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.printsize.release.85291820" name="ARM Sourcery Linux GNU Print Size" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.printsize.release"/>
 						</toolChain>
