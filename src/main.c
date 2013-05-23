@@ -31,22 +31,19 @@ void Delay(u32 count) {
 // Led on PB5 and PE5
 int main(void) {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOE, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
 
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_Init(GPIOE, &GPIO_InitStructure);
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	while (1) {
-		GPIO_ResetBits(GPIOB, GPIO_Pin_5 );
-		GPIO_SetBits(GPIOE, GPIO_Pin_5 );
+		GPIO_SetBits(GPIOC, GPIO_Pin_8 );
 		Delay(3000000);
 
-		GPIO_SetBits(GPIOB, GPIO_Pin_5 );
-		GPIO_ResetBits(GPIOE, GPIO_Pin_5 );
+		GPIO_ResetBits(GPIOC, GPIO_Pin_8 );
 		Delay(3000000);
 	}
 }
