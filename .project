@@ -28,7 +28,7 @@
 		<link>
 			<name>StdPeriph</name>
 			<type>2</type>
-			<location>/home/agu/tools/stm32/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src</location>
+			<locationURI>PARENT-1-PROJECT_LOC/Libraries/STM32F10x_StdPeriph_Driver/src</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
