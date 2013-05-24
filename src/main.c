@@ -23,8 +23,9 @@
 #include "stm32f10x.h"
 
 void Delay(u32 count) {
-	vu32 i = 0;
-	for (; i < count; i++)
+	extern vu32 TimingDelay;
+	TimingDelay = count;
+	while (TimingDelay)
 		;
 }
 
@@ -39,12 +40,14 @@ int main(void) {
 
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
+	SysTick_Config(SystemCoreClock / 1000);
+
 	while (1) {
 		GPIO_SetBits(GPIOC, GPIO_Pin_8 );
-		Delay(3000000);
+		Delay(1000);
 
 		GPIO_ResetBits(GPIOC, GPIO_Pin_8 );
-		Delay(3000000);
+		Delay(1000);
 	}
 }
 
