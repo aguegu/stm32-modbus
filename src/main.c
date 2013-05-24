@@ -54,9 +54,10 @@ int main(void) {
 
 	while (1) {
 		static u8 i = 0;
+
+		iprintf("%d %s\r\n", i, "Hello, world.");
 		GPIO_WriteBit(GPIOC, GPIO_Pin_8, i++ & 0x01);
 		Delay(1000);
-		iprintf("Hello, world.\r\n");
 	}
 }
 
