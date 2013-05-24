@@ -21,6 +21,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
+#include <stdio.h>
+
+void usart2_init();
 
 void Delay(u32 count) {
 	extern vu32 TimingDelay;
@@ -42,13 +45,53 @@ int main(void) {
 
 	SysTick_Config(SystemCoreClock / 1000);
 
-	while (1) {
-		GPIO_SetBits(GPIOC, GPIO_Pin_8 );
-		Delay(1000);
+	//by default stdin/stdout are on usart2
+	usart2_init();
+	// turn off buffers, so IO occurs immediately
+	setvbuf(stdin, NULL, _IONBF, 0);
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
 
-		GPIO_ResetBits(GPIOC, GPIO_Pin_8 );
+	while (1) {
+		static u8 i = 0;
+		GPIO_WriteBit(GPIOC, GPIO_Pin_8, i++ & 0x01);
 		Delay(1000);
+		iprintf("Hello, world.\r\n");
 	}
+}
+
+void usart2_init() {
+	USART_InitTypeDef USART_InitStructure;
+	USART_InitStructure.USART_BaudRate = 115200;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	USART_InitStructure.USART_Parity = USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl =
+			USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+	RCC_APB2PeriphClockCmd(
+			RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO,
+			ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+
+	/* Configure USART Tx as push-pull */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* Configure USART Rx as input floating */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* USART configuration */
+	USART_Init(USART2, &USART_InitStructure);
+
+	/* Enable USART */
+	USART_Cmd(USART2, ENABLE);
 }
 
 #ifdef  USE_FULL_ASSERT
