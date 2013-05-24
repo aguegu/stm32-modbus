@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 void usart2_init();
+void usart1_init();
 
 void Delay(u32 count) {
 	extern vu32 TimingDelay;
@@ -46,6 +47,7 @@ int main(void) {
 	SysTick_Config(SystemCoreClock / 1000);
 
 	//by default stdin/stdout are on usart2
+	usart1_init();
 	usart2_init();
 	// turn off buffers, so IO occurs immediately
 	setvbuf(stdin, NULL, _IONBF, 0);
@@ -55,7 +57,9 @@ int main(void) {
 	while (1) {
 		static u8 i = 0;
 
-		iprintf("%d %s\r\n", i, "Hello, world.");
+		//iprintf("%d %s\r\n", i, "Hello, world.");
+		fprintf(stdout, "%d %s\r\n", i, "stdout");
+		fprintf(stderr, "%d %s\r\n", i, "stderr");
 		GPIO_WriteBit(GPIOC, GPIO_Pin_8, i++ & 0x01);
 		Delay(1000);
 	}
@@ -72,9 +76,7 @@ void usart2_init() {
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_APB2PeriphClockCmd(
-			RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO,
-			ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 
 	/* Configure USART Tx as push-pull */
@@ -93,6 +95,38 @@ void usart2_init() {
 
 	/* Enable USART */
 	USART_Cmd(USART2, ENABLE);
+}
+
+void usart1_init() {
+	USART_InitTypeDef USART_InitStructure;
+	USART_InitStructure.USART_BaudRate = 115200;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	USART_InitStructure.USART_Parity = USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl =
+			USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+
+	/* Configure USART Tx as push-pull */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* Configure USART Rx as input floating */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* USART configuration */
+	USART_Init(USART1, &USART_InitStructure);
+
+	/* Enable USART */
+	USART_Cmd(USART1, ENABLE);
 }
 
 #ifdef  USE_FULL_ASSERT
