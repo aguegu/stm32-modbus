@@ -38,6 +38,24 @@ Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC );
 Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC );
 Usart usart(USART2, RCC_APB1Periph_USART2, RCC_APB1PeriphClockCmd);
 
+void initUsart() {
+	usart.init(115200);
+
+	Gpio usart_tx(GPIOA, GPIO_Pin_2,
+			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
+	usart_tx.init(GPIO_Mode_AF_PP);
+
+	Gpio usart_rx(GPIOA, GPIO_Pin_3,
+			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
+	usart_rx.init(GPIO_Mode_IN_FLOATING);
+
+	USART_Cmd(USART2, ENABLE);
+
+	setvbuf(stdin, NULL, _IONBF, 0);
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
+}
+
 int main(void) {
 
 	led_green.init(GPIO_Mode_Out_PP);
@@ -56,21 +74,7 @@ int main(void) {
 
 	///////////////////////////////////////////
 
-	usart.init(115200);
-
-	Gpio usart_tx(GPIOA, GPIO_Pin_2,
-			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
-	usart_tx.init(GPIO_Mode_AF_PP);
-
-	Gpio usart_rx(GPIOA, GPIO_Pin_3,
-			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
-	usart_rx.init(GPIO_Mode_IN_FLOATING);
-
-	USART_Cmd(USART2, ENABLE);
-
-	setvbuf(stdin, NULL, _IONBF, 0);
-	setvbuf(stdout, NULL, _IONBF, 0);
-	setvbuf(stderr, NULL, _IONBF, 0);
+	initUsart();
 
 	while (1) {
 		static u8 i = 0;
