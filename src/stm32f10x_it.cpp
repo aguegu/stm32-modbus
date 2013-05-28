@@ -23,6 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
+#include "gpio/gpio.h"
 
 /** @addtogroup STM32F10x_StdPeriph_Examples
  * @{
@@ -147,6 +148,17 @@ void SysTick_Handler(void) {
 /*void PPP_IRQHandler(void)
  {
  }*/
+
+
+void TIM2_IRQHandler(void) {
+	extern Gpio led_green;
+
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update ) != RESET) {
+		led_green.toggle();
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update );
+	}
+}
+
 
 /**
  * @}

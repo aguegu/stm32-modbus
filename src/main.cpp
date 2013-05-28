@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include "usart/usart.h"
 #include "gpio/gpio.h"
+#include "tim/tim.h"
+#include "nvic/nvic.h"
 
 void Delay(u32 count) {
 	extern vu32 TimingDelay;
@@ -40,12 +42,21 @@ int main(void) {
 	led_green.init(GPIO_Mode_Out_PP);
 	led_blue.init(GPIO_Mode_Out_PP);
 
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0 );
+	Nvic nvic;
+	nvic.init(TIM2_IRQn, 0, 3, ENABLE);
+
 	SysTick_Config(SystemCoreClock / 1000);
 
+	Tim t2(TIM2, RCC_APB1Periph_TIM2, RCC_APB1PeriphClockCmd);
+	t2.init(1000, 1000);
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+	TIM_Cmd(TIM2, ENABLE);
+
 //	// turn off buffers, so IO occurs immediately
-//	setvbuf(stdin, NULL, _IONBF, 0);
-//	setvbuf(stdout, NULL, _IONBF, 0);
-//	setvbuf(stderr, NULL, _IONBF, 0);
+	setvbuf(stdin, NULL, _IONBF, 0);
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
 
 	while (1) {
 		static u8 i = 0;
