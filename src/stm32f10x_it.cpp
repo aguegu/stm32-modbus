@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include "gpio/gpio.h"
+#include "usart/usart.h"
 
 /** @addtogroup STM32F10x_StdPeriph_Examples
  * @{
@@ -149,7 +150,6 @@ void SysTick_Handler(void) {
  {
  }*/
 
-
 void TIM2_IRQHandler(void) {
 	extern Gpio led_green;
 
@@ -159,7 +159,17 @@ void TIM2_IRQHandler(void) {
 	}
 }
 
+void USART2_IRQHandler(void) {
 
+	extern Usart usart;
+	if (USART_GetITStatus(USART2, USART_IT_TXE ) != RESET) {
+		usart.transmit();
+	}
+
+	if (USART_GetITStatus(USART2, USART_IT_RXNE ) != RESET) {
+		usart.receive();
+	}
+}
 /**
  * @}
  */

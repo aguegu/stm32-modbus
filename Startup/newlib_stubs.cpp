@@ -9,11 +9,17 @@
  * 	getting-newlib-to-work-with-stm32-and-code-sourcery-lite-eabi
  *
  */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/unistd.h>
-#include "stm32f10x_usart.h"
+//#include "stm32f10x_usart.h"
+#include "usart/usart.h"
 
 #ifndef STDOUT_USART
 #define STDOUT_USART 2
@@ -38,7 +44,7 @@ extern int errno;
 char *__env[1] = { 0 };
 char **environ = __env;
 
-int _write(int file, char *ptr, int len);
+int _write(int file, const char *ptr, int len);
 
 void _exit(int status) {
 	_write(1, "exit", 4);
@@ -118,7 +124,7 @@ int _kill(int pid, int sig) {
  Establish a new name for an existing file. Minimal implementation:
  */
 
-int _link(char *old, char *new) {
+int _link(char *s_old, char *s_new) {
 	errno = EMLINK;
 	return -1;
 }
@@ -179,17 +185,17 @@ int _read(int file, char *ptr, int len) {
 			while ((USART2 ->SR & USART_FLAG_RXNE )== (uint16_t) RESET);
 			char c = (char) (USART2->DR & (uint16_t) 0x01FF);
 #elif STDIN_USART == 3
-			while ((USART3->SR & USART_FLAG_RXNE) == (uint16_t) RESET);
-			char c = (char)(USART3->DR & (uint16_t)0x01FF);
+					while ((USART3->SR & USART_FLAG_RXNE) == (uint16_t) RESET);
+					char c = (char)(USART3->DR & (uint16_t)0x01FF);
 #endif
-			*ptr++ = c;
-			num++;
-		}
-		break;
-	default:
-		errno = EBADF;
-		return -1;
-	}
+					*ptr++ = c;
+					num++;
+				}
+				break;
+				default:
+				errno = EBADF;
+				return -1;
+			}
 	return num;
 }
 
@@ -236,7 +242,11 @@ int _wait(int *status) {
  Write a character to a file. `libc' subroutines will use this system routine for output to all files, including stdout
  Returns -1 on error or number of bytes sent
  */
-int _write(int file, char *ptr, int len) {
+
+int _write(int file, const char *ptr, int len) {
+
+	extern Usart usart;
+
 	int n;
 	switch (file) {
 	case STDOUT_FILENO: /*stdout*/
@@ -245,8 +255,7 @@ int _write(int file, char *ptr, int len) {
 			while ((USART1->SR & USART_FLAG_TC) == (uint16_t) RESET);
 			USART1->DR = (*ptr++ & (uint16_t)0x01FF);
 #elif  STDOUT_USART == 2
-			while ((USART2 ->SR & USART_FLAG_TC )== (uint16_t) RESET);
-			USART2->DR = (*ptr++ & (uint16_t) 0x01FF);
+			usart.write(*ptr++);
 #elif  STDOUT_USART == 3
 			while ((USART3->SR & USART_FLAG_TC) == (uint16_t) RESET);
 			USART3->DR = (*ptr++ & (uint16_t)0x01FF);
@@ -256,20 +265,23 @@ int _write(int file, char *ptr, int len) {
 	case STDERR_FILENO: /* stderr */
 		for (n = 0; n < len; n++) {
 #if STDERR_USART == 1
-		while ((USART1->SR & USART_FLAG_TC) == (uint16_t) RESET);
-		USART1->DR = (*ptr++ & (uint16_t)0x01FF);
+			while ((USART1->SR & USART_FLAG_TC) == (uint16_t) RESET);
+			USART1->DR = (*ptr++ & (uint16_t)0x01FF);
 #elif  STDERR_USART == 2
-		while ((USART2->SR & USART_FLAG_TC) == (uint16_t) RESET);
-		USART2->DR = (*ptr++ & (uint16_t) 0x01FF);
+			usart.write(*ptr++);
 #elif  STDERR_USART == 3
-		while ((USART3->SR & USART_FLAG_TC) == (uint16_t) RESET);
-		USART3->DR = (*ptr++ & (uint16_t)0x01FF);
+					while ((USART3->SR & USART_FLAG_TC) == (uint16_t) RESET);
+					USART3->DR = (*ptr++ & (uint16_t)0x01FF);
 #endif
-		}
-		break;
-	default:
-		errno = EBADF;
-		return -1;
-	}
+				}
+				break;
+				default:
+				errno = EBADF;
+				return -1;
+			}
 	return len;
 }
+
+#ifdef __cplusplus
+}
+#endif

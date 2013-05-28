@@ -54,6 +54,9 @@ void initUsart() {
 	setvbuf(stdin, NULL, _IONBF, 0);
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
+
+	USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 }
 
 int main(void) {
@@ -64,6 +67,7 @@ int main(void) {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0 );
 	Nvic nvic;
 	nvic.init(TIM2_IRQn, 0, 3, ENABLE);
+	nvic.init(USART2_IRQn, 0, 2, ENABLE);
 
 	SysTick_Config(SystemCoreClock / 1000);
 
