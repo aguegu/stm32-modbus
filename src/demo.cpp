@@ -37,8 +37,12 @@ void Delay(u32 count) {
 Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC );
 Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC );
 Usart usart(USART2, RCC_APB1Periph_USART2, RCC_APB1PeriphClockCmd);
+Nvic nvic;
 
-void initUsart() {
+void init() {
+
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0 );
+
 	usart.init(115200);
 
 	Gpio usart_tx(GPIOA, GPIO_Pin_2,
@@ -49,27 +53,23 @@ void initUsart() {
 			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
 	usart_rx.init(GPIO_Mode_IN_FLOATING);
 
-	USART_Cmd(USART2, ENABLE);
-
 	setvbuf(stdin, NULL, _IONBF, 0);
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
 
-	USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+	nvic.init(USART2_IRQn, 0, 2, ENABLE);
+
+	SysTick_Config(SystemCoreClock / 1000);
 }
 
 int main(void) {
 
+	init();
+
 	led_green.init(GPIO_Mode_Out_PP);
 	led_blue.init(GPIO_Mode_Out_PP);
 
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0 );
-	Nvic nvic;
 	nvic.init(TIM2_IRQn, 0, 3, ENABLE);
-	nvic.init(USART2_IRQn, 0, 2, ENABLE);
-
-	SysTick_Config(SystemCoreClock / 1000);
 
 	Tim t2(TIM2, RCC_APB1Periph_TIM2, RCC_APB1PeriphClockCmd);
 	t2.init(1000, 1000);
@@ -78,23 +78,20 @@ int main(void) {
 
 	///////////////////////////////////////////
 
-	initUsart();
-
 	while (1) {
 		static u8 i = 0;
 
-		//fprintf(stdout, "%d %s\r\n", i, "stdout");
+		fprintf(stdout, "%d %s\r\n", i, "stdout");
 //		fprintf(stderr, "%d %s\r\n", i, "stderr");
 
 		while(usart.available()) {
 			char c = usart.read();
-			fprintf(stdout, "%c", c);
+			fprintf(stdout, "0x%02X\r\n", c);
+			led_blue.toggle();
 		}
 
-		led_blue.toggle();
-
 		i++;
-		Delay(1000);
+		Delay(500);
 	}
 }
 
