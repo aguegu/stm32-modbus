@@ -36,6 +36,7 @@ void Delay(u32 count) {
 
 Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC );
 Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC );
+Usart usart(USART2, RCC_APB1Periph_USART2, RCC_APB1PeriphClockCmd);
 
 int main(void) {
 
@@ -53,7 +54,20 @@ int main(void) {
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 	TIM_Cmd(TIM2, ENABLE);
 
-//	// turn off buffers, so IO occurs immediately
+	///////////////////////////////////////////
+
+	usart.init(115200);
+
+	Gpio usart_tx(GPIOA, GPIO_Pin_2,
+			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
+	usart_tx.init(GPIO_Mode_AF_PP);
+
+	Gpio usart_rx(GPIOA, GPIO_Pin_3,
+			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
+	usart_rx.init(GPIO_Mode_IN_FLOATING);
+
+	USART_Cmd(USART2, ENABLE);
+
 	setvbuf(stdin, NULL, _IONBF, 0);
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
@@ -61,9 +75,8 @@ int main(void) {
 	while (1) {
 		static u8 i = 0;
 
-		//iprintf("%d %s\r\n", i, "Hello, world.");
-//		fprintf(stdout, "%d %s\r\n", i, "stdout");
-//		fprintf(stderr, "%d %s\r\n", i, "stderr");
+		fprintf(stdout, "%d %s\r\n", i, "stdout");
+		fprintf(stderr, "%d %s\r\n", i, "stderr");
 
 		led_blue.toggle();
 
