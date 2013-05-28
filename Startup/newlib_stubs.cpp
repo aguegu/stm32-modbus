@@ -3,10 +3,12 @@
  *
  *  Created on: 2 Nov 2010
  *      Author: nanoage.co.uk
+ *      Weihong Guan (@aGuegu)
  *
- * source: https://sites.google.com/site/stm32discovery/
- * 	open-source-development-with-the-stm32-discovery/
- * 	getting-newlib-to-work-with-stm32-and-code-sourcery-lite-eabi
+ * modified on source:
+ https://sites.google.com/site/stm32discovery/
+ open-source-development-with-the-stm32-discovery/
+ getting-newlib-to-work-with-stm32-and-code-sourcery-lite-eabi
  *
  */
 
@@ -173,29 +175,22 @@ caddr_t _sbrk(int incr) {
  */
 
 int _read(int file, char *ptr, int len) {
+
+	extern Usart usart;
+
 	int n;
 	int num = 0;
 	switch (file) {
 	case STDIN_FILENO:
 		for (n = 0; n < len; n++) {
-#if   STDIN_USART == 1
-			while ((USART1->SR & USART_FLAG_RXNE) == (uint16_t) RESET);
-			char c = (char)(USART1->DR & (uint16_t)0x01FF);
-#elif STDIN_USART == 2
-			while ((USART2 ->SR & USART_FLAG_RXNE )== (uint16_t) RESET);
-			char c = (char) (USART2->DR & (uint16_t) 0x01FF);
-#elif STDIN_USART == 3
-					while ((USART3->SR & USART_FLAG_RXNE) == (uint16_t) RESET);
-					char c = (char)(USART3->DR & (uint16_t)0x01FF);
-#endif
-					*ptr++ = c;
-					num++;
-				}
-				break;
-				default:
-				errno = EBADF;
-				return -1;
-			}
+			*ptr++ = usart.read();
+			num++;
+		}
+		break;
+	default:
+		errno = EBADF;
+		return -1;
+	}
 	return num;
 }
 
@@ -251,34 +246,18 @@ int _write(int file, const char *ptr, int len) {
 	switch (file) {
 	case STDOUT_FILENO: /*stdout*/
 		for (n = 0; n < len; n++) {
-#if STDOUT_USART == 1
-			while ((USART1->SR & USART_FLAG_TC) == (uint16_t) RESET);
-			USART1->DR = (*ptr++ & (uint16_t)0x01FF);
-#elif  STDOUT_USART == 2
 			usart.write(*ptr++);
-#elif  STDOUT_USART == 3
-			while ((USART3->SR & USART_FLAG_TC) == (uint16_t) RESET);
-			USART3->DR = (*ptr++ & (uint16_t)0x01FF);
-#endif
 		}
 		break;
 	case STDERR_FILENO: /* stderr */
 		for (n = 0; n < len; n++) {
-#if STDERR_USART == 1
-			while ((USART1->SR & USART_FLAG_TC) == (uint16_t) RESET);
-			USART1->DR = (*ptr++ & (uint16_t)0x01FF);
-#elif  STDERR_USART == 2
 			usart.write(*ptr++);
-#elif  STDERR_USART == 3
-					while ((USART3->SR & USART_FLAG_TC) == (uint16_t) RESET);
-					USART3->DR = (*ptr++ & (uint16_t)0x01FF);
-#endif
-				}
-				break;
-				default:
-				errno = EBADF;
-				return -1;
-			}
+		}
+		break;
+	default:
+		errno = EBADF;
+		return -1;
+	}
 	return len;
 }
 

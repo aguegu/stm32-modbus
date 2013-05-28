@@ -83,8 +83,13 @@ int main(void) {
 	while (1) {
 		static u8 i = 0;
 
-		fprintf(stdout, "%d %s\r\n", i, "stdout");
-		fprintf(stderr, "%d %s\r\n", i, "stderr");
+		//fprintf(stdout, "%d %s\r\n", i, "stdout");
+//		fprintf(stderr, "%d %s\r\n", i, "stderr");
+
+		while(usart.available()) {
+			char c = usart.read();
+			fprintf(stdout, "%c", c);
+		}
 
 		led_blue.toggle();
 
