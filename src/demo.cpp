@@ -30,7 +30,6 @@
 void delay(u32 ms) {
 
 	extern vu32 millis;
-
 	uint32_t start = millis;
 
 	while (ms) {

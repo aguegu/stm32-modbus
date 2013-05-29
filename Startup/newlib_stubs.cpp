@@ -20,20 +20,7 @@ extern "C" {
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/unistd.h>
-//#include "stm32f10x_usart.h"
 #include "usart/usart.h"
-
-#ifndef STDOUT_USART
-#define STDOUT_USART 2
-#endif
-
-#ifndef STDERR_USART
-#define STDERR_USART 2
-#endif
-
-#ifndef STDIN_USART
-#define STDIN_USART 2
-#endif
 
 #undef errno
 extern int errno;
@@ -49,10 +36,9 @@ char **environ = __env;
 int _write(int file, const char *ptr, int len);
 
 void _exit(int status) {
-	_write(1, "exit", 4);
-	while (1) {
+	_write(STDOUT_FILENO, "exit", 4);
+	while (1)
 		;
-	}
 }
 
 int _close(int file) {
@@ -165,7 +151,6 @@ caddr_t _sbrk(int incr) {
 
 	heap_end += incr;
 	return (caddr_t) prev_heap_end;
-
 }
 
 /*
