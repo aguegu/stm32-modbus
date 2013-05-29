@@ -9,6 +9,9 @@
  https://sites.google.com/site/stm32discovery/
  open-source-development-with-the-stm32-discovery/
  getting-newlib-to-work-with-stm32-and-code-sourcery-lite-eabi
+
+ http://andybrown.me.uk/wk/2011/12/28/
+ stm32plus-a-c-library-for-stm32-development/
  *
  */
 
@@ -21,6 +24,8 @@ extern "C" {
 #include <sys/times.h>
 #include <sys/unistd.h>
 #include "usart/usart.h"
+#include <sys/types.h>
+#include <stdlib.h>
 
 #undef errno
 extern int errno;
@@ -32,6 +37,46 @@ extern int errno;
  */
 char *__env[1] = { 0 };
 char **environ = __env;
+
+/*
+ * The default pulls in 70K of garbage
+ */
+
+namespace __gnu_cxx {
+void __verbose_terminate_handler() {
+	for (;;)
+		;
+}
+}
+
+/*
+ * The default pulls in about 12K of garbage
+ */
+
+void __cxa_pure_virtual() {
+	for (;;)
+		;
+}
+
+/*
+ * Implement C++ new/delete operators using the heap
+ */
+
+void *operator new(size_t size) {
+	return malloc(size);
+}
+
+void *operator new[](size_t size) {
+	return malloc(size);
+}
+
+void operator delete(void *p) {
+	free(p);
+}
+
+void operator delete[](void *p) {
+	free(p);
+}
 
 int _write(int file, const char *ptr, int len);
 

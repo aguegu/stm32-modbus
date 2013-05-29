@@ -26,6 +26,8 @@
 #include "gpio/gpio.h"
 #include "tim/tim.h"
 #include "nvic/nvic.h"
+#include <vector>
+#include "stdlib.h"
 
 void delay(u32 ms) {
 
@@ -40,8 +42,6 @@ void delay(u32 ms) {
 	}
 }
 
-Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC );
-Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC );
 Usart usart(USART2, RCC_APB1Periph_USART2, RCC_APB1PeriphClockCmd);
 Nvic nvic;
 
@@ -70,40 +70,46 @@ void init() {
 
 int main(void) {
 
+	Gpio ** leds = (Gpio **) malloc(sizeof(Gpio *) * 2);
+
+	leds[0] = new Gpio(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC );
+	leds[1] = new Gpio(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC );
+
 	init();
-	led_green.init(GPIO_Mode_Out_PP);
-	led_blue.init(GPIO_Mode_Out_PP);
+	leds[0]->init(GPIO_Mode_Out_PP);
+	leds[1]->init(GPIO_Mode_Out_PP);
 
-	nvic.init(TIM2_IRQn, 0, 3, ENABLE);
+	leds[0]->toggle();
 
-	Tim t2(TIM2, RCC_APB1Periph_TIM2, RCC_APB1PeriphClockCmd);
-	t2.init(1000, 1000);
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-	TIM_Cmd(TIM2, ENABLE);
+//	nvic.init(TIM2_IRQn, 0, 3, ENABLE);
+//	Tim t2(TIM2, RCC_APB1Periph_TIM2, RCC_APB1PeriphClockCmd);
+//	t2.init(1000, 1000);
+//	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+//	TIM_Cmd(TIM2, ENABLE);
 
 	///////////////////////////////////////////
 
 	while (1) {
 		static u8 i = 0;
 
-//		fprintf(stderr, "%d %s\r\n", i, "stderr");
-//		fprintf(stdout, "%d\r\n", x);
+		fprintf(stderr, "%d %s\r\n", i, "stderr");
 
-//		while (usart.available()) {
-//			char c = usart.read();
-//			fprintf(stdout, "0x%02X\r\n", c);
-//		}
-
-		static char s[128] = { 0 };
-		int len = usart.readBytesUntil('\r', s, 128);
-		if (len && len != -1)
-		{
-			s[len] = 0;
-			fprintf(stderr, "%d %s\r\n", i, s);
+		while (usart.available()) {
+			char c = usart.read();
+			fprintf(stdout, "0x%02X\r\n", c);
 		}
 
+//		static char s[128] = { 0 };
+//		int len = usart.readBytesUntil('\r', s, 128);
+//		if (len && len != -1)
+//		{
+//			s[len] = 0;
+//			fprintf(stderr, "%d %s\r\n", i, s);
+//		}
+
 		i++;
-		led_blue.toggle();
+		leds[0]->toggle();
+		leds[1]->toggle();
 		delay(1000);
 	}
 }
