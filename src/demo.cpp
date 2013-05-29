@@ -85,9 +85,9 @@ int main(void) {
 	///////////////////////////////////////////
 
 	while (1) {
-		//static u8 i = 0;
+		static u8 i = 0;
 
-//		fprintf(stderr, "%d %s\r\n", i, "stderr");
+		fprintf(stderr, "%d %s\r\n", i, "stderr");
 //		fprintf(stdout, "%d\r\n", x);
 
 		while (usart.available()) {
@@ -95,7 +95,7 @@ int main(void) {
 			fprintf(stdout, "0x%02X\r\n", c);
 		}
 
-		//i++;
+		i++;
 		led_blue.toggle();
 		delay(1000);
 	}

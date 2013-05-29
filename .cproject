@@ -56,11 +56,14 @@
 									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
 									<listOptionValue builtIn="false" value="USE_STDPERIPH_DRIVER"/>
 								</option>
+								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.optimization.functionsections.1954011190" name="Function sections (-ffunction-sections)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.optimization.functionsections" value="true" valueType="boolean"/>
+								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.optimization.datasections.382564311" name="Data sections (-fdata-sections)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.optimization.datasections" value="true" valueType="boolean"/>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.438247836" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 							</tool>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.c.linker.debug.1269106299" name="ARM Sourcery Linux GCC C Linker" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.c.linker.debug"/>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.cpp.linker.debug.1410603308" name="ARM Sourcery Linux GCC C++ Linker" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.cpp.linker.debug">
 								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.link.option.scriptfile.2095576430" name="Script file (-T)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.link.option.scriptfile" value="../stm32_flash.ld" valueType="string"/>
+								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.link.option.gcsections.1408683001" name="Remove unused sections (-Xlinker --gc-sections)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.link.option.gcsections" value="true" valueType="boolean"/>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.cpp.linker.input.349568943" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -131,11 +134,14 @@
 									<listOptionValue builtIn="false" value="STM32F10X_MD_VL"/>
 									<listOptionValue builtIn="false" value="USE_STDPERIPH_DRIVER"/>
 								</option>
+								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.optimization.functionsections.1989984301" name="Function sections (-ffunction-sections)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.optimization.functionsections" value="true" valueType="boolean"/>
+								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.optimization.datasections.35422071" name="Data sections (-fdata-sections)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.optimization.datasections" value="true" valueType="boolean"/>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input.546546122" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.cpp.compiler.base.input"/>
 							</tool>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.c.linker.release.523622358" name="ARM Sourcery Linux GCC C Linker" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.c.linker.release"/>
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.cpp.linker.release.816645541" name="ARM Sourcery Linux GCC C++ Linker" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.linux.elf.cpp.linker.release">
 								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.link.option.scriptfile.825717370" name="Script file (-T)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.link.option.scriptfile" value="../stm32_flash.ld" valueType="string"/>
+								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.link.option.gcsections.2100607318" name="Remove unused sections (-Xlinker --gc-sections)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.link.option.gcsections" value="true" valueType="boolean"/>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.cpp.linker.input.1128638721" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
