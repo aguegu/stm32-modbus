@@ -27,11 +27,18 @@
 #include "tim/tim.h"
 #include "nvic/nvic.h"
 
-void Delay(u32 count) {
-	extern vu32 TimingDelay;
-	TimingDelay = count;
-	while (TimingDelay)
-		;
+void delay(u32 ms) {
+
+	extern vu32 millis;
+
+	uint32_t start = millis;
+
+	while (ms) {
+		if (millis - start) {
+			ms--;
+			start++;
+		}
+	}
 }
 
 Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC );
@@ -59,7 +66,7 @@ void init() {
 
 	nvic.init(USART2_IRQn, 0, 2, ENABLE);
 
-	SysTick_Config(SystemCoreClock / 1000);
+	SysTick_Config(SystemCoreClock / 1000);	// Tick per ms
 }
 
 int main(void) {
@@ -79,19 +86,19 @@ int main(void) {
 	///////////////////////////////////////////
 
 	while (1) {
-		static u8 i = 0;
+		//static u8 i = 0;
 
-		fprintf(stdout, "%d %s\r\n", i, "stdout");
 //		fprintf(stderr, "%d %s\r\n", i, "stderr");
+//		fprintf(stdout, "%d\r\n", x);
 
-		while(usart.available()) {
+		while (usart.available()) {
 			char c = usart.read();
 			fprintf(stdout, "0x%02X\r\n", c);
-			led_blue.toggle();
 		}
 
-		i++;
-		Delay(500);
+		//i++;
+		led_blue.toggle();
+		delay(1000);
 	}
 }
 

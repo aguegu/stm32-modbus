@@ -127,11 +127,11 @@ void PendSV_Handler(void) {
  * @retval None
  */
 
-vu32 TimingDelay = 0;
+//vu32 TimingDelay = 0;
+vu32 millis = 0;
 
 void SysTick_Handler(void) {
-	if (TimingDelay)
-		TimingDelay--;
+	millis++;
 }
 
 /******************************************************************************/
