@@ -71,7 +71,6 @@ void init() {
 int main(void) {
 
 	init();
-
 	led_green.init(GPIO_Mode_Out_PP);
 	led_blue.init(GPIO_Mode_Out_PP);
 
@@ -87,12 +86,20 @@ int main(void) {
 	while (1) {
 		static u8 i = 0;
 
-		fprintf(stderr, "%d %s\r\n", i, "stderr");
+//		fprintf(stderr, "%d %s\r\n", i, "stderr");
 //		fprintf(stdout, "%d\r\n", x);
 
-		while (usart.available()) {
-			char c = usart.read();
-			fprintf(stdout, "0x%02X\r\n", c);
+//		while (usart.available()) {
+//			char c = usart.read();
+//			fprintf(stdout, "0x%02X\r\n", c);
+//		}
+
+		static char s[128] = { 0 };
+		int len = usart.readBytesUntil('\r', s, 128);
+		if (len && len != -1)
+		{
+			s[len] = 0;
+			fprintf(stderr, "%d %s\r\n", i, s);
 		}
 
 		i++;

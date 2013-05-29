@@ -163,11 +163,10 @@ int _read(int file, char *ptr, int len) {
 
 	extern Usart usart;
 
-	int n;
 	int num = 0;
 	switch (file) {
 	case STDIN_FILENO:
-		for (n = 0; n < len; n++) {
+		for (int i = 0; i < len; i++) {
 			*ptr++ = usart.read();
 			num++;
 		}
