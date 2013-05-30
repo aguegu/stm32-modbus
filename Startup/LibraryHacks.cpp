@@ -3,6 +3,8 @@
  *
  *  Created on: 23 Jan 2011
  *      Author: Andy
+ *      source: : stm32plus, version 2.1.0
+ *      @ http://andybrown.me.uk/wk/downloads/
  */
 
 #include <cstdlib>
@@ -74,10 +76,11 @@ extern "C" void __wrap___aeabi_unwind_cpp_pr2() {}
  * sbrk function for getting space for malloc and friends
  */
 
-extern int  _end;
-
 extern "C" {
+
 	caddr_t _sbrk ( int incr ) {
+
+		extern int  _end;
 
 		static unsigned char *heap = NULL;
 		unsigned char *prev_heap;
