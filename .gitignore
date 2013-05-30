@@ -5,4 +5,5 @@ gpio
 usart
 tim
 nvic
+i2c
 
