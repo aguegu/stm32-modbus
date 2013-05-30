@@ -28,6 +28,7 @@
 #include "nvic/nvic.h"
 #include <vector>
 #include "stdlib.h"
+#include "i2c/i2c.h"
 
 void delay(u32 ms) {
 
@@ -89,15 +90,34 @@ int main(void) {
 
 	///////////////////////////////////////////
 
+	I2C_LowLevel_Init(I2C1, 400000, 0x00);
+
+	uint8_t cache[] = { 0x0e, 0x9c };
+	I2C_Write(I2C1, cache, 2, 0xd0);
+	uint8_t cache2[] = { 0x0f, 0x00 };
+	I2C_Write(I2C1, cache2, 2, 0xd0);
+
 	while (1) {
-		static u8 i = 0;
+		static u8 h, m, s = 0;
 
-		fprintf(stderr, "%d %s\r\n", i, "stderr");
+		uint8_t cmd = 0;
+		I2C_Write(I2C1, &cmd, 1, 0xd0);
+		I2C_Read(I2C1, &s, 1, 0xd0);
 
-		while (usart.available()) {
-			char c = usart.read();
-			fprintf(stdout, "0x%02X\r\n", c);
-		}
+		cmd = 1;
+		I2C_Write(I2C1, &cmd, 1, 0xd0);
+		I2C_Read(I2C1, &m, 1, 0xd0);
+
+		cmd = 2;
+		I2C_Write(I2C1, &cmd, 1, 0xd0);
+		I2C_Read(I2C1, &h, 1, 0xd0);
+
+		fprintf(stderr, "%02x:%02x:%02x\r\n", h, m, s);
+
+//		while (usart.available()) {
+//			char c = usart.read();
+//			fprintf(stdout, "0x%02X\r\n", c);
+//		}
 
 //		static char s[128] = { 0 };
 //		int len = usart.readBytesUntil('\r', s, 128);
@@ -107,7 +127,7 @@ int main(void) {
 //			fprintf(stderr, "%d %s\r\n", i, s);
 //		}
 
-		i++;
+		//i++;
 		leds[0]->toggle();
 		leds[1]->toggle();
 		delay(1000);
