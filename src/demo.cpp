@@ -82,6 +82,14 @@ int main(void) {
 
 	leds[0]->toggle();
 
+	Gpio scl(GPIOB, GPIO_Pin_6, RCC_APB2Periph_GPIOB );
+	Gpio sda(GPIOB, GPIO_Pin_7, RCC_APB2Periph_GPIOB );
+	scl.init(GPIO_Mode_AF_OD);
+	sda.init(GPIO_Mode_AF_OD);
+
+	I2c i2c(I2C1, RCC_APB1Periph_I2C1 );
+	i2c.init();
+
 //	nvic.init(TIM2_IRQn, 0, 3, ENABLE);
 //	Tim t2(TIM2, RCC_APB1Periph_TIM2, RCC_APB1PeriphClockCmd);
 //	t2.init(1000, 1000);
@@ -90,27 +98,34 @@ int main(void) {
 
 	///////////////////////////////////////////
 
-	I2C_LowLevel_Init(I2C1, 400000, 0x00);
+	//I2C_LowLevel_Init(400000, 0x00);
+
+	uint8_t w;
 
 	uint8_t cache[] = { 0x0e, 0x9c };
-	I2C_Write(I2C1, cache, 2, 0xd0);
+	//w = I2C_Write(I2C1, cache, 2, 0xd0);
+	w = i2c.write(0xd0, cache, 2);
+	fprintf(stderr, "%02x:\r\n", w);
+
 	uint8_t cache2[] = { 0x0f, 0x00 };
-	I2C_Write(I2C1, cache2, 2, 0xd0);
+	//w = I2C_Write(I2C1, cache2, 2, 0xd0);
+	w = i2c.write(0xd0, cache2, 2);
+	fprintf(stderr, "%02x:\r\n", w);
 
 	while (1) {
 		static u8 h, m, s = 0;
 
 		uint8_t cmd = 0;
-		I2C_Write(I2C1, &cmd, 1, 0xd0);
-		I2C_Read(I2C1, &s, 1, 0xd0);
+		i2c.write(0xd0, &cmd, 1);
+		i2c.read(0xd0, &s, 1);
 
 		cmd = 1;
-		I2C_Write(I2C1, &cmd, 1, 0xd0);
-		I2C_Read(I2C1, &m, 1, 0xd0);
+		i2c.write(0xd0, &cmd, 1);
+		i2c.read(0xd0, &m, 1);
 
 		cmd = 2;
-		I2C_Write(I2C1, &cmd, 1, 0xd0);
-		I2C_Read(I2C1, &h, 1, 0xd0);
+		i2c.write(0xd0, &cmd, 1);
+		i2c.read(0xd0, &h, 1);
 
 		fprintf(stderr, "%02x:%02x:%02x\r\n", h, m, s);
 
