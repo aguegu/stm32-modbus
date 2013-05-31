@@ -113,7 +113,7 @@ int main(void) {
 	fprintf(stderr, "%02x:\r\n", w);
 
 	while (1) {
-		static u8 h, m, s = 0;
+		static u8 h, m, s, i = 0;
 
 		uint8_t cmd = 0;
 		i2c.write(0xd0, &cmd, 1);
@@ -129,18 +129,18 @@ int main(void) {
 
 		fprintf(stderr, "%02x:%02x:%02x\r\n", h, m, s);
 
-//		while (usart.available()) {
-//			char c = usart.read();
-//			fprintf(stdout, "0x%02X\r\n", c);
-//		}
+		while (usart.available()) {
+			char c = usart.read();
+			fprintf(stdout, "0x%02X\r\n", c);
+		}
 
-//		static char s[128] = { 0 };
-//		int len = usart.readBytesUntil('\r', s, 128);
-//		if (len && len != -1)
-//		{
-//			s[len] = 0;
-//			fprintf(stderr, "%d %s\r\n", i, s);
-//		}
+		static char str[128] = { 0 };
+		int len = usart.readBytesUntil('\r', str, 128);
+		if (len && len != -1)
+		{
+			str[len] = 0;
+			fprintf(stderr, "%d %s\r\n", i, str);
+		}
 
 		//i++;
 		leds[0]->toggle();
