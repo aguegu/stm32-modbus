@@ -48,6 +48,9 @@ Nvic nvic;
 
 void init() {
 
+	SysTick_Config(SystemCoreClock / 1000);	// Tick per ms
+	delay(1000);
+
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0 );
 
 	usart.init(115200);
@@ -66,21 +69,19 @@ void init() {
 
 	nvic.init(USART2_IRQn, 0, 2, ENABLE);
 
-	SysTick_Config(SystemCoreClock / 1000);	// Tick per ms
 }
 
 int main(void) {
+
+	init();
 
 	Gpio ** leds = (Gpio **) malloc(sizeof(Gpio *) * 2);
 
 	leds[0] = new Gpio(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC );
 	leds[1] = new Gpio(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC );
 
-	init();
 	leds[0]->init(GPIO_Mode_Out_PP);
 	leds[1]->init(GPIO_Mode_Out_PP);
-
-	leds[0]->toggle();
 
 	Gpio scl(GPIOB, GPIO_Pin_6, RCC_APB2Periph_GPIOB );
 	Gpio sda(GPIOB, GPIO_Pin_7, RCC_APB2Periph_GPIOB );
@@ -98,17 +99,13 @@ int main(void) {
 
 	///////////////////////////////////////////
 
-	//I2C_LowLevel_Init(400000, 0x00);
-
-	uint8_t w;
+	uint8_t w, r;
 
 	uint8_t cache[] = { 0x0e, 0x9c };
-	//w = I2C_Write(I2C1, cache, 2, 0xd0);
 	w = i2c.write(0xd0, cache, 2);
 	fprintf(stderr, "%02x:\r\n", w);
 
 	uint8_t cache2[] = { 0x0f, 0x00 };
-	//w = I2C_Write(I2C1, cache2, 2, 0xd0);
 	w = i2c.write(0xd0, cache2, 2);
 	fprintf(stderr, "%02x:\r\n", w);
 
@@ -116,8 +113,8 @@ int main(void) {
 		static u8 h, m, s, i = 0;
 
 		uint8_t cmd = 0;
-		i2c.write(0xd0, &cmd, 1);
-		i2c.read(0xd0, &s, 1);
+		w = i2c.write(0xd0, &cmd, 1);
+		r = i2c.read(0xd0, &s, 1);
 
 		cmd = 1;
 		i2c.write(0xd0, &cmd, 1);
@@ -127,7 +124,7 @@ int main(void) {
 		i2c.write(0xd0, &cmd, 1);
 		i2c.read(0xd0, &h, 1);
 
-		fprintf(stderr, "%02x:%02x:%02x\r\n", h, m, s);
+		fprintf(stderr, "[%02x %02x] %02x:%02x:%02x\r\n", w, r, h, m, s);
 
 		while (usart.available()) {
 			char c = usart.read();
@@ -142,9 +139,9 @@ int main(void) {
 			fprintf(stderr, "%d %s\r\n", i, str);
 		}
 
-		//i++;
 		leds[0]->toggle();
 		leds[1]->toggle();
+
 		delay(1000);
 	}
 }
