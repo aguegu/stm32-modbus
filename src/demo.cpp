@@ -37,7 +37,6 @@ void setup() {
 	uint8_t cache2[] = { 0x0f, 0x00 };
 	w = i2c.write(0xd0, cache2, 2);
 	fprintf(stderr, "%02x:\r\n", w);
-
 }
 
 void loop() {
