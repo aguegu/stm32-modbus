@@ -58,16 +58,18 @@ void loop() {
 
 	fprintf(stderr, "[%02x %02x] %02x:%02x:%02x\r\n", w, r, h, m, s);
 
-	while (usart.available()) {
-		char c = usart.read();
-		fprintf(stdout, "0x%02X\r\n", c);
-	}
+//	while (usart.available()) {
+//		char c = usart.read();
+//		fprintf(stdout, "0x%02X\r\n", c);
+//	}
 
 	static char str[128] = { 0 };
-	int len = usart.readBytesUntil('\r', str, 128);
-	if (len && len != -1) {
-		str[len] = 0;
-		fprintf(stderr, "%d %s\r\n", i, str);
+	if (usart.available()) {
+		int len = usart.readBytesUntil('\r', str, 128);
+		if (len && len != -1) {
+			str[len] = 0;
+			fprintf(stderr, "%d %s\r\n", i, str);
+		}
 	}
 
 	leds[0]->toggle();
