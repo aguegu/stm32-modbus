@@ -2,7 +2,7 @@
 
 int main(void) __attribute__((weak));
 
-Usart usart(USART2, RCC_APB1Periph_USART2, RCC_APB1PeriphClockCmd);
+Usart usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd);
 Nvic nvic;
 
 int main(void) {
@@ -18,11 +18,11 @@ void init() {
 	SysTick_Config(SystemCoreClock / 1000);	// Tick per ms
 	delay(1000);
 
-	Gpio usart_tx(GPIOA, GPIO_Pin_2,
+	Gpio usart_tx(GPIOA, GPIO_Pin_9,
 			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
 	usart_tx.init(GPIO_Mode_AF_PP);
 
-	Gpio usart_rx(GPIOA, GPIO_Pin_3,
+	Gpio usart_rx(GPIOA, GPIO_Pin_10,
 			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
 	usart_rx.init(GPIO_Mode_IN_FLOATING);
 
@@ -33,7 +33,7 @@ void init() {
 	setvbuf(stderr, NULL, _IONBF, 0);
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0 );
-	nvic.init(USART2_IRQn, 0, 2, ENABLE);
+	nvic.init(USART1_IRQn, 0, 2, ENABLE);
 }
 
 void delay(u32 ms) {

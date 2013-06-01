@@ -150,23 +150,23 @@ void SysTick_Handler(void) {
  {
  }*/
 
-//void TIM2_IRQHandler(void) {
-//	extern Gpio led_green;
-//
-//	if (TIM_GetITStatus(TIM2, TIM_IT_Update ) != RESET) {
-//		led_green.toggle();
-//		TIM_ClearITPendingBit(TIM2, TIM_IT_Update );
-//	}
-//}
+void TIM2_IRQHandler(void) {
+	extern Gpio led_green;
 
-void USART2_IRQHandler(void) {
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update ) != RESET) {
+		led_green.toggle();
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update );
+	}
+}
+
+void USART1_IRQHandler(void) {
 
 	extern Usart usart;
-	if (USART_GetITStatus(USART2, USART_IT_TXE ) != RESET) {
+	if (USART_GetITStatus(USART1, USART_IT_TXE ) != RESET) {
 		usart.transmit();
 	}
 
-	if (USART_GetITStatus(USART2, USART_IT_RXNE ) != RESET) {
+	if (USART_GetITStatus(USART1, USART_IT_RXNE ) != RESET) {
 		usart.receive();
 	}
 }
