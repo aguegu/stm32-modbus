@@ -160,15 +160,9 @@ void TIM2_IRQHandler(void) {
 }
 
 void USART1_IRQHandler(void) {
-
 	extern Usart usart;
-	if (USART_GetITStatus(USART1, USART_IT_TXE ) != RESET) {
-		usart.transmit();
-	}
-
-	if (USART_GetITStatus(USART1, USART_IT_RXNE ) != RESET) {
-		usart.receive();
-	}
+	if (USART_GetITStatus(USART1, USART_IT_TXE )) usart.transmit();
+	if (USART_GetITStatus(USART1, USART_IT_RXNE )) usart.receive();
 }
 /**
  * @}
