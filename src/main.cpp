@@ -48,11 +48,26 @@ void delay(u32 ms) {
 	}
 }
 
+// delayMicroseconds ref to libmaple
+void delayMicroseconds(vu32 us) {
+	us *= SystemCoreClock / 3000000;
+
+	asm volatile(
+			"   mov r0, %[us]          \n\t"
+			"1: subs r0, #1            \n\t"
+			"   bhi 1b                 \n\t"
+			:
+			: [us] "r" (us)
+			: "r0"
+	);
+}
+
 #ifdef  USE_FULL_ASSERT
 
 void assert_failed(uint8_t* file, uint32_t line) {
-	while (1) {
-	}
+	fprintf(stderr, "assert failed on %s, line # %ld\r\n", file, line);
+	while (1)
+		;
 }
 
 #endif

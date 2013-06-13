@@ -21,5 +21,8 @@ void loop() {
 		fprintf(stdout, "0x%02X\r\n", c);
 		led_blue.toggle();
 	}
+
+	led_blue.toggle();
+	delayMicroseconds(1000000);
 }
 

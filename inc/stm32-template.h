@@ -22,6 +22,7 @@ void init();
 extern void setup();
 extern void loop();
 extern void delay(u32 ms);
+extern void delayMicroseconds(vu32 us);
 
 extern Usart usart;
 extern Nvic nvic;

@@ -6,4 +6,7 @@ usart
 tim
 nvic
 i2c
+dma
+st7735r
+spi
 
