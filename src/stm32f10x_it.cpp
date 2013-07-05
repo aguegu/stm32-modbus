@@ -153,9 +153,9 @@ void SysTick_Handler(void) {
 void TIM2_IRQHandler(void) {
 	extern Gpio led_green;
 
-	if (TIM_GetITStatus(TIM2, TIM_IT_Update ) != RESET) {
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET) {
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 		led_green.toggle();
-		TIM_ClearITPendingBit(TIM2, TIM_IT_Update );
 	}
 }
 
