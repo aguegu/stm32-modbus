@@ -1,4 +1,4 @@
-stm32 development template based on ST STM32F103VB standard periph driver sample project GPIO/Toggle. 
+stm32 development template for modbus based on ST STM32F100 STM32Discovery
 
 OS: ubuntu
 

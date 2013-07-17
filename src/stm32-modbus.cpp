@@ -1,7 +1,10 @@
 #include "stm32-template.h"
+#include "modbus/crc.h"
 
-Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC );
-Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC );
+Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
+Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
+
+Crc crc;
 
 void setup() {
 
@@ -17,8 +20,10 @@ void setup() {
 
 void loop() {
 	while (usart.available()) {
-		char c = usart.read();
+		uint8_t c = usart.read();
 		fprintf(stdout, "0x%02X\r\n", c);
+
+		fprintf(stdout, "0x%02X\r\n", crc.calc(&c, 1));
 		led_blue.toggle();
 	}
 
