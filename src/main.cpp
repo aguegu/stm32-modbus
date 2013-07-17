@@ -31,7 +31,6 @@ void init() {
 	setvbuf(stdin, NULL, _IONBF, 0);
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
-
 }
 
 void delay(u32 ms) {
