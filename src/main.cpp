@@ -3,7 +3,6 @@
 int main(void) __attribute__((weak));
 
 Usart usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd);
-Nvic nvic;
 
 int main(void) {
 	init();
@@ -32,8 +31,8 @@ void init() {
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
 
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0 );
-	nvic.init(USART1_IRQn, 0, 2, ENABLE);
+	nvic.configureGroup(NVIC_PriorityGroup_0 );
+	nvic.configure(USART1_IRQn, 0, 2, ENABLE);
 }
 
 void delay(u32 ms) {
