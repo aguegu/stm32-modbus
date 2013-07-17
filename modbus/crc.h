@@ -18,4 +18,6 @@ private:
 	const static uint8_t _LO[];
 };
 
+extern Crc crc;
+
 #endif /* CRC_H_ */

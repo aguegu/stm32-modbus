@@ -4,8 +4,6 @@
 Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
 Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
 
-Crc crc;
-
 void setup() {
 
 	led_green.init(GPIO_Mode_Out_PP);
@@ -14,8 +12,8 @@ void setup() {
 	nvic.init(TIM2_IRQn, 0, 3, ENABLE);
 	Tim t2(TIM2, RCC_APB1Periph_TIM2, RCC_APB1PeriphClockCmd);
 	t2.init(1000, 1000);
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-	TIM_Cmd(TIM2, ENABLE);
+	t2.configureIT(TIM_IT_Update);
+	t2.setState();
 }
 
 void loop() {
