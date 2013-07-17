@@ -20,7 +20,7 @@ SlaveRtu::~SlaveRtu()
 
 void SlaveRtu::init() {
 
-	usart.init(9600, USART_WordLength_9b, USART_StopBits_1, USART_Parity_Even);
+	_usart.init(9600, USART_WordLength_9b, USART_StopBits_1, USART_Parity_Even);
 
 	_tim.init(20000, (770000UL / 9600) + 1);
 	_tim.configureIT(TIM_IT_Update);

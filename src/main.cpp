@@ -1,5 +1,4 @@
 #include "stm32-template.h"
-#include "modbus/slave-rtu.h"
 
 int main(void) __attribute__((weak));
 

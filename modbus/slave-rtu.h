@@ -8,7 +8,9 @@
 #ifndef SLAVE_RTU_H_
 #define SLAVE_RTU_H_
 
-#include "stm32-template.h"
+#include "tim/tim.h"
+#include "usart/usart.h"
+#include "nvic/nvic.h"
 
 class SlaveRtu {
 public:
