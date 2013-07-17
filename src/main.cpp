@@ -1,8 +1,11 @@
 #include "stm32-template.h"
+#include "modbus/slave-rtu.h"
 
 int main(void) __attribute__((weak));
 
 Usart usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd);
+Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
+SlaveRtu slave(usart, t1);
 
 int main(void) {
 	init();
@@ -18,21 +21,17 @@ void init() {
 	delay(1000);
 
 	Gpio usart_tx(GPIOA, GPIO_Pin_9,
-			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
+	RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
 	usart_tx.init(GPIO_Mode_AF_PP);
 
 	Gpio usart_rx(GPIOA, GPIO_Pin_10,
-			RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO );
+	RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
 	usart_rx.init(GPIO_Mode_IN_FLOATING);
-
-	usart.init(115200);
 
 	setvbuf(stdin, NULL, _IONBF, 0);
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
 
-	nvic.configureGroup(NVIC_PriorityGroup_0 );
-	nvic.configure(USART1_IRQn, 0, 2, ENABLE);
 }
 
 void delay(u32 ms) {

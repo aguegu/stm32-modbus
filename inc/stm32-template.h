@@ -20,6 +20,7 @@
 #include "nvic/nvic.h"
 #include "i2c/i2c.h"
 #include "adc/adc.h"
+#include "modbus/slave-rtu.h"
 
 void init();
 extern void setup();
@@ -28,6 +29,6 @@ extern void delay(u32 ms);
 extern void delayMicroseconds(vu32 us);
 
 extern Usart usart;
-extern Nvic nvic;
+
 
 #endif /* STM32_TEMPLATE_H_ */

@@ -163,6 +163,14 @@ void USART1_IRQHandler(void) {
 	extern Usart usart;
 	usart.ithandler();
 }
+
+void TIM1_UP_TIM16_IRQHandler(void) {
+	extern Gpio led_blue;
+	if (TIM_GetITStatus(TIM1, TIM_IT_Update) == SET) {
+		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+		led_blue.toggle();
+	}
+}
 /**
  * @}
  */
