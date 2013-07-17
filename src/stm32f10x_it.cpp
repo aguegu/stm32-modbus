@@ -25,6 +25,7 @@
 #include "stm32f10x_it.h"
 #include "gpio/gpio.h"
 #include "usart/usart.h"
+#include "modbus/slave-rtu.h"
 
 /** @addtogroup STM32F10x_StdPeriph_Examples
  * @{
@@ -165,11 +166,8 @@ void USART1_IRQHandler(void) {
 }
 
 void TIM1_UP_TIM16_IRQHandler(void) {
-	extern Gpio led_blue;
-	if (TIM_GetITStatus(TIM1, TIM_IT_Update) == SET) {
-		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
-		led_blue.toggle();
-	}
+	extern SlaveRtu slave;
+	slave.handleTimIrq();
 }
 /**
  * @}

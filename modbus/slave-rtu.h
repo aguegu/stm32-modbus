@@ -11,6 +11,7 @@
 #include "tim/tim.h"
 #include "usart/usart.h"
 #include "nvic/nvic.h"
+#include "gpio/gpio.h"
 
 class SlaveRtu {
 public:
@@ -18,9 +19,18 @@ public:
 	~SlaveRtu();
 	void init();
 
+	enum State {
+		IDEL,
+		RECEIVING,
+		TRANSMITTING
+	};
+
+	void handler();
+	void handleTimIrq();
 private:
 	Usart & _usart;
 	Tim & _tim;
+	State _state;
 };
 
 #endif /* SLAVE_RTU_H_ */

@@ -21,20 +21,7 @@ void setup() {
 
 void loop() {
 
-	static uint8_t i;
-	static uint8_t c[2];
-
-	while (usart.available()) {
-		c[i] = usart.read();
-		fprintf(stdout, "0x%02X\r\n", c[i]);
-
-		led_blue.toggle();
-
-		if (++i == 2) {
-			i = 0;
-			fprintf(stdout, "0x%02X\r\n", crc.calc(c, 2));
-		}
-	}
+	slave.handler();
 
 //	led_blue.toggle();
 //	delayMicroseconds(1000000);

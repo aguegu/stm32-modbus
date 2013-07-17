@@ -20,11 +20,11 @@ void init() {
 	delay(1000);
 
 	Gpio usart_tx(GPIOA, GPIO_Pin_9,
-	RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
+		RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
 	usart_tx.init(GPIO_Mode_AF_PP);
 
 	Gpio usart_rx(GPIOA, GPIO_Pin_10,
-	RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
+		RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
 	usart_rx.init(GPIO_Mode_IN_FLOATING);
 
 	setvbuf(stdin, NULL, _IONBF, 0);
