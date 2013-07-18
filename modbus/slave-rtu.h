@@ -18,20 +18,12 @@ public:
 	SlaveRtu(Usart & usart, Tim & tim);
 	~SlaveRtu();
 	void init();
-
-	enum StateRx {
-		IDEL,
-		RECEIVING,
-		RECEIVED,
-		ERROR
-	};
-
 	void handler();
 	void handleTimIrq();
 private:
 	Usart & _usart;
 	Tim & _tim;
-	volatile StateRx _rx_state;
+	volatile bool _is_receiving;
 	static const uint16_t _BUFF_LENGTH = 256;
 	uint8_t _buff[_BUFF_LENGTH];
 };

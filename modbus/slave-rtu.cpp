@@ -9,7 +9,7 @@
 
 SlaveRtu::SlaveRtu(Usart & usart, Tim & tim) :
 		_usart(usart), _tim(tim) {
-	_rx_state = RECEIVING;
+	_is_receiving = true;
 }
 
 SlaveRtu::~SlaveRtu() {
@@ -40,28 +40,20 @@ void SlaveRtu::handler() {
 	static uint16_t index = 0;
 
 	if (_usart.available()) {
-
-		uint8_t c = _usart.read();
-
-		if (_rx_state == IDEL) {
-			index = 0;
-			_buff[index++] = c;
-			_rx_state = RECEIVING;
-		} else if (_rx_state == RECEIVING) {
-			_buff[index++] = c;
-		}
-
+		_buff[index++] = _usart.read();
 		led_blue.set(Bit_SET);
-
 		_tim.setCounter(0x0000);
 		_tim.setState(ENABLE);
 	}
 
-	if (_rx_state == RECEIVED) {
+	if (_is_receiving == false) {
+
 		_usart.write(0xff);
 		for (uint16_t i = 0; i < index; i++)
 			_usart.write(_buff[i]);
-		_rx_state = IDEL;
+
+		_is_receiving = true;
+		index = 0;
 	}
 }
 
@@ -71,7 +63,7 @@ void SlaveRtu::handleTimIrq() {
 	if (_tim.getITStatus(TIM_IT_Update) == SET) {
 		_tim.clearITPendingBit(TIM_IT_Update);
 		_tim.setState(DISABLE);
-		_rx_state = RECEIVED;
+		_is_receiving = false;
 		led_blue.set(Bit_RESET);
 	}
 }
