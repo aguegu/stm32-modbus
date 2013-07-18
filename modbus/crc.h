@@ -8,7 +8,7 @@
 #ifndef CRC_H_
 #define CRC_H_
 
-#include "stm32-template.h"
+#include "stm32f10x.h"
 
 class Crc {
 public:

@@ -112,7 +112,7 @@ uint16_t Crc::calc(uint8_t *p, uint16_t length) {
 	uint8_t lo = 0xFF;
 
 	while (length--) {
-		int i = lo ^ *p++;
+		uint8_t i = lo ^ *p++;
 		lo = hi ^ _HI[i];
 		hi = _LO[i];
 	}

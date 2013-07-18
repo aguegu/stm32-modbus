@@ -7,8 +7,8 @@
 
 #include "slave-rtu.h"
 
-SlaveRtu::SlaveRtu(Usart & usart, Tim & tim) :
-		_usart(usart), _tim(tim) {
+SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address) :
+		_usart(usart), _tim(tim), _address(address) {
 	_is_receiving = true;
 }
 
@@ -48,10 +48,18 @@ void SlaveRtu::handler() {
 
 	if (_is_receiving == false) {
 
-		_usart.write(0xff);
-		for (uint16_t i = 0; i < index; i++)
-			_usart.write(_buff[i]);
+		if (index >= 4) {
+			uint16_t crc0 = crc.calc(_buff, index - 2);
+			uint16_t crc1 = _buff[index - 2] | (_buff[index - 1] << 8);
 
+			if (crc0 == crc1) {
+				uint8_t c[6] = { 0x01, 0x01, 0x01, 0x01 };
+				uint16_t v = crc.calc(c, 4);
+				c[4] = v;
+				c[5] = v >> 8;
+				_usart.write(c, 6);
+			}
+		}
 		_is_receiving = true;
 		index = 0;
 	}
