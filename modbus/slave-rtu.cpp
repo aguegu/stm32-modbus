@@ -7,8 +7,10 @@
 
 #include "slave-rtu.h"
 
-SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address) :
-		_usart(usart), _tim(tim), _address(address) {
+SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address,
+		uint8_t * supportted_functions) :
+		_usart(usart), _tim(tim), _address(address), _supportted_functions(
+				supportted_functions) {
 	_is_receiving = true;
 }
 
@@ -40,7 +42,7 @@ void SlaveRtu::handler() {
 	static uint16_t index = 0;
 
 	if (_usart.available()) {
-		_buff[index++] = _usart.read();
+		_buff_rx[index++] = _usart.read();
 		led_blue.set(Bit_SET);
 		_tim.setCounter(0x0000);
 		_tim.setState(ENABLE);
@@ -48,18 +50,32 @@ void SlaveRtu::handler() {
 
 	if (_is_receiving == false) {
 
-		if (index >= 4) {
-			uint16_t crc0 = crc.calc(_buff, index - 2);
-			uint16_t crc1 = _buff[index - 2] | (_buff[index - 1] << 8);
+		uint8_t exception = 0;
 
-			if (crc0 == crc1) {
-				uint8_t c[6] = { 0x01, 0x01, 0x01, 0x01 };
-				uint16_t v = crc.calc(c, 4);
-				c[4] = v;
-				c[5] = v >> 8;
-				_usart.write(c, 6);
+		do {
+			if (index < 4 || index >= _BUFF_LENGTH) break;
+			if (_buff_rx[0] != _address) break;
+			if (this->checkFrameCrc(_buff_rx, index) == false) break;
+
+			if (this->isFunctionSupportted(_buff_rx[1]) == false) exception =
+					0x01;
+
+			_buff_tx[0] = _address;
+			_buff_tx[1] = _buff_rx[1];	// function code
+
+			uint8_t length = 1;
+			if (exception) {
+				_buff_tx[1] += 0x80;
+				_buff_tx[2] = exception;
+				length = 3;
+			} else {
+				_buff_tx[2] = 0x01;
+				_buff_tx[3] = 0x01;
+				length = 4;
 			}
-		}
+			this->appendCrcAndReply(length);
+		} while (false);
+
 		_is_receiving = true;
 		index = 0;
 	}
@@ -76,3 +92,25 @@ void SlaveRtu::handleTimIrq() {
 	}
 }
 
+bool SlaveRtu::checkFrameCrc(const uint8_t *p, uint8_t length) {
+	uint16_t crc0 = crc.calc(p, length - 2);
+	uint16_t crc1 = p[length - 2] | (p[length - 1] << 8);
+	return crc0 == crc1;
+}
+
+bool SlaveRtu::isFunctionSupportted(uint8_t function) {
+	uint8_t *p = _supportted_functions;
+
+	do {
+		if (function == *p++) return true;
+	} while (*p);
+
+	return false;
+}
+
+void SlaveRtu::appendCrcAndReply(uint8_t length) {
+	uint16_t v = crc.calc(_buff_tx, length);
+	_buff_tx[length] = v;
+	_buff_tx[length + 1] = v >> 8;
+	_usart.write(_buff_tx, length + 2);
+}

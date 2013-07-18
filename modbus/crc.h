@@ -12,7 +12,7 @@
 
 class Crc {
 public:
-	static uint16_t calc(uint8_t *p, uint16_t length);
+	static uint16_t calc(const uint8_t *p, uint16_t length);
 private:
 	const static uint8_t _HI[];
 	const static uint8_t _LO[];

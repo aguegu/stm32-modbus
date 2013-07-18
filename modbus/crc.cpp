@@ -107,7 +107,7 @@ const uint8_t Crc::_LO[] = {
 		0x82, 0x42, 0x43, 0x83, 0x41, 0x81, 0x80, 0x40
 };
 
-uint16_t Crc::calc(uint8_t *p, uint16_t length) {
+uint16_t Crc::calc(const uint8_t *p, uint16_t length) {
 	uint8_t hi = 0xFF;
 	uint8_t lo = 0xFF;
 
