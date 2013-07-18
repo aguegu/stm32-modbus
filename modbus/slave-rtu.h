@@ -19,10 +19,11 @@ public:
 	~SlaveRtu();
 	void init();
 
-	enum State {
+	enum StateRx {
 		IDEL,
 		RECEIVING,
-		TRANSMITTING
+		RECEIVED,
+		ERROR
 	};
 
 	void handler();
@@ -30,7 +31,9 @@ public:
 private:
 	Usart & _usart;
 	Tim & _tim;
-	State _state;
+	volatile StateRx _rx_state;
+	static const uint16_t _BUFF_LENGTH = 256;
+	uint8_t _buff[_BUFF_LENGTH];
 };
 
 #endif /* SLAVE_RTU_H_ */

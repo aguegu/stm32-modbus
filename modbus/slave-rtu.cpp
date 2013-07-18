@@ -9,7 +9,7 @@
 
 SlaveRtu::SlaveRtu(Usart & usart, Tim & tim) :
 		_usart(usart), _tim(tim) {
-	_state = IDEL;
+	_rx_state = RECEIVING;
 }
 
 SlaveRtu::~SlaveRtu() {
@@ -18,16 +18,16 @@ SlaveRtu::~SlaveRtu() {
 
 void SlaveRtu::init() {
 
-	_usart.init(9600, USART_WordLength_9b, USART_StopBits_1, USART_Parity_Even);
+	_usart.init(19200, USART_WordLength_9b, USART_StopBits_1,
+	USART_Parity_Even);
 
-	_tim.init(2000, (770000UL / 9600));
+	_tim.init(20000, (770000UL / 19200));
 	//_tim.init(1000, 1000);
 	_tim.configureIT(TIM_IT_Update);
-	_tim.setState(DISABLE);
-
 	_tim.configureArrPreload();
 
-	_tim.configureIT(TIM_IT_Update);
+	_tim.setCounter(0x0000);
+	_tim.setState(ENABLE);
 
 	nvic.configureGroup(NVIC_PriorityGroup_1);
 	nvic.configure(TIM1_UP_TIM16_IRQn, 0, 3, ENABLE);
@@ -35,18 +35,33 @@ void SlaveRtu::init() {
 }
 
 void SlaveRtu::handler() {
-
 	extern Gpio led_blue;
 
-	if (_usart.available()) {
-		//if (_state == IDEL) _state = RECEIVING;
+	static uint16_t index = 0;
 
-		_tim.setCounter(0x0000);
-		_tim.setState();
+	if (_usart.available()) {
+
+		uint8_t c = _usart.read();
+
+		if (_rx_state == IDEL) {
+			index = 0;
+			_buff[index++] = c;
+			_rx_state = RECEIVING;
+		} else if (_rx_state == RECEIVING) {
+			_buff[index++] = c;
+		}
 
 		led_blue.set(Bit_SET);
 
-		_usart.read();
+		_tim.setCounter(0x0000);
+		_tim.setState(ENABLE);
+	}
+
+	if (_rx_state == RECEIVED) {
+		_usart.write(0xff);
+		for (uint16_t i = 0; i < index; i++)
+			_usart.write(_buff[i]);
+		_rx_state = IDEL;
 	}
 }
 
@@ -55,9 +70,9 @@ void SlaveRtu::handleTimIrq() {
 
 	if (_tim.getITStatus(TIM_IT_Update) == SET) {
 		_tim.clearITPendingBit(TIM_IT_Update);
-
-		led_blue.set(Bit_RESET);
 		_tim.setState(DISABLE);
+		_rx_state = RECEIVED;
+		led_blue.set(Bit_RESET);
 	}
 }
 
