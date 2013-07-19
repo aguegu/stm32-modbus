@@ -8,10 +8,16 @@
 #ifndef SLAVE_RTU_H_
 #define SLAVE_RTU_H_
 
+#include <cstdlib>
+#include <cstring>
+
+#include "stm32f10x.h"
+
 #include "tim/tim.h"
 #include "usart/usart.h"
 #include "nvic/nvic.h"
 #include "gpio/gpio.h"
+#include "common/bit_op.h"
 
 #include "crc.h"
 
@@ -24,6 +30,9 @@ public:
 	void handler();
 	void handleTimIrq();
 
+	void setCoil(uint16_t index, BitAction state);
+	BitAction getCoil(uint16_t index);
+
 private:
 	Usart & _usart;
 	Tim & _tim;
@@ -33,6 +42,8 @@ private:
 	uint8_t _buff_tx[_BUFF_LENGTH];
 	const uint8_t _address;
 	uint8_t * _supportted_functions;
+	uint16_t _coils_length;
+	uint8_t * _coils;
 
 	bool checkFrameCrc(const uint8_t *p, uint8_t length);
 	bool isFunctionSupportted(uint8_t function);
