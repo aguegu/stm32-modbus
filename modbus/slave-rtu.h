@@ -48,6 +48,7 @@ private:
 	bool checkFrameCrc(const uint8_t *p, uint8_t length);
 	bool isFunctionSupportted(uint8_t function);
 	void appendCrcAndReply(uint8_t length);
+	uint8_t responseReadCoils(uint8_t * length);
 };
 
 #endif /* SLAVE_RTU_H_ */

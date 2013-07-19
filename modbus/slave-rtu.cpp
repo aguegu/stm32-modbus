@@ -74,29 +74,7 @@ void SlaveRtu::handler() {
 
 				switch (_buff_rx[1]) {
 				case 0x01:
-					uint16_t address_length = makeWord(_buff_rx[4], _buff_rx[5]);
-
-					if (address_length == 0 || address_length > 0x07d0) {
-						exception = 0x03;
-						break;
-					}
-
-					uint16_t address_indent = makeWord(_buff_rx[2], _buff_rx[3]);
-
-					if (address_indent + address_length > _coils_length) {
-						exception = 0x02;
-						break;
-					}
-
-					for (uint16_t i = 0; i < address_length; i++) {
-						bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
-							this->getCoil(address_indent + i) == Bit_SET);
-					}
-
-					_buff_tx[2] = (address_length >> 3)
-							+ (address_length & 0x07 ? 1 : 0);
-
-					length = 3 + _buff_tx[2];
+					exception = responseReadCoils(&length);
 					break;
 				}
 
@@ -159,4 +137,24 @@ void SlaveRtu::setCoil(uint16_t index, BitAction state) {
 BitAction SlaveRtu::getCoil(uint16_t index) {
 	assert_param(index < _coils_length);
 	return bitRead(_coils[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
+}
+
+uint8_t SlaveRtu::responseReadCoils(uint8_t * length) {
+
+	uint16_t address_length = makeWord(_buff_rx[4], _buff_rx[5]);
+	if (address_length == 0 || address_length > 0x07d0) return 0x03;
+
+	uint16_t address_indent = makeWord(_buff_rx[2], _buff_rx[3]);
+	if (address_indent + address_length > _coils_length) return 0x02;
+
+	for (uint16_t i = 0; i < address_length; i++) {
+		bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
+			this->getCoil(address_indent + i) == Bit_SET);
+	}
+
+	_buff_tx[2] = (address_length >> 3)
+			+ (address_length & 0x07 ? 1 : 0);
+
+	*length = 3 + _buff_tx[2];
+	return 0;
 }
