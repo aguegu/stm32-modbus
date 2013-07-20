@@ -30,5 +30,10 @@
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Libraries/STM32F10x_StdPeriph_Driver/src</locationURI>
 		</link>
+		<link>
+			<name>stm32libs</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/stm32libs</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>
