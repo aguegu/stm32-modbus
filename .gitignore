@@ -2,3 +2,5 @@ Debug/
 Release/
 
 stm32libs
+*.swp
+

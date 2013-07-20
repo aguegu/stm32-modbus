@@ -9,7 +9,6 @@ void setup() {
 	led_green.init(GPIO_Mode_Out_PP);
 	led_blue.init(GPIO_Mode_Out_PP);
 
-	nvic.configureGroup(NVIC_PriorityGroup_1);
 	nvic.configure(TIM2_IRQn, 1, 3, ENABLE);
 	Tim t2(TIM2, RCC_APB1Periph_TIM2, RCC_APB1PeriphClockCmd);
 	t2.init(1000, 1000);
@@ -17,13 +16,11 @@ void setup() {
 	t2.setState();
 
 	slave.init();
+
+	slave.setCoil(1, Bit_SET);
 }
 
 void loop() {
-
 	slave.handler();
-
-//	led_blue.toggle();
-//	delayMicroseconds(1000000);
 }
 
