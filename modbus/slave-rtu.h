@@ -36,6 +36,7 @@ public:
 	void setDiscreteInput(uint16_t index, BitAction state);
 	BitAction getDiscreteInput(uint16_t index);
 
+
 private:
 	Usart & _usart;
 	Tim & _tim;
@@ -55,7 +56,10 @@ private:
 	bool checkFrameCrc(const uint8_t *p, uint8_t length);
 	bool isFunctionSupportted(uint8_t function);
 	void appendCrcAndReply(uint8_t length);
+
 	uint8_t responseReadCoils(uint8_t * length);
+	uint8_t responseWriteCoils(uint8_t * length);
+
 	uint8_t responseReadDiscreteInputs(uint8_t * length);
 };
 

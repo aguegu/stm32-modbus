@@ -85,6 +85,9 @@ void SlaveRtu::handler() {
 				case 0x02:
 					exception = responseReadDiscreteInputs(&length);
 					break;
+				case 0x05:
+					exception = responseWriteCoils(&length);
+					break;
 				}
 
 			} while (false);
@@ -192,5 +195,19 @@ uint8_t SlaveRtu::responseReadDiscreteInputs(uint8_t * length) {
 	_buff_tx[2] = (address_length + 7) >> 3;
 
 	*length = 3 + _buff_tx[2];
+	return 0;
+}
+
+uint8_t SlaveRtu::responseWriteCoils(uint8_t * length) {
+	uint16_t val = makeWord(_buff_rx[4], _buff_rx[5]);
+	if (val && val != 0xff00) return 0x03;
+
+	uint16_t address = makeWord(_buff_rx[2], _buff_rx[3]);
+	if (address >= _coils_length) return 0x02;
+
+	this->setCoil(address, val ? Bit_SET : Bit_RESET);
+	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
+	*length = 6;
+
 	return 0;
 }
