@@ -49,10 +49,10 @@ void SlaveRtu::init() {
 void SlaveRtu::handler() {
 	extern Gpio led_blue;
 
-	static uint16_t index = 0;
+	static uint16_t length_rx = 0;
 
 	if (_usart.available()) {
-		_buff_rx[index++] = _usart.read();
+		_buff_rx[length_rx++] = _usart.read();
 		led_blue.set(Bit_SET);
 		_tim.setCounter(0x0000);
 		_tim.setState(ENABLE);
@@ -62,14 +62,14 @@ void SlaveRtu::handler() {
 		memset(_buff_tx, 0, _BUFF_LENGTH);
 
 		do {
-			if (index < 4 || index >= _BUFF_LENGTH) break;
+			if (length_rx < 4 || length_rx >= _BUFF_LENGTH) break;
 			if (_buff_rx[0] && _buff_rx[0] != _address) break;
-			if (this->checkFrameCrc(_buff_rx, index) == false) break;
+			if (this->checkFrameCrc(_buff_rx, length_rx) == false) break;
 
 			_buff_tx[0] = _address;
 			_buff_tx[1] = _buff_rx[1];	// function code
 
-			uint8_t length = 1;
+			uint8_t length_tx = 1;
 			uint8_t exception = 0;
 
 			do {
@@ -80,14 +80,17 @@ void SlaveRtu::handler() {
 
 				switch (_buff_rx[1]) {
 				case 0x01:
-					exception = responseReadCoils(&length);
+					exception = responseReadCoils(&length_tx);
 					break;
 				case 0x02:
-					exception = responseReadDiscreteInputs(&length);
+					exception = responseReadDiscreteInputs(&length_tx);
 					break;
 				case 0x05:
-					exception = responseWriteCoils(&length);
+					exception = responseWriteSingleCoil(&length_tx);
 					break;
+				case 0x0f:
+					exception = responseWriteMultipleCoils(length_rx,
+							&length_tx);
 				}
 
 			} while (false);
@@ -95,14 +98,14 @@ void SlaveRtu::handler() {
 			if (exception) {
 				_buff_tx[1] += 0x80;
 				_buff_tx[2] = exception;
-				length = 3;
+				length_tx = 3;
 			}
 
-			if (_buff_tx[0]) this->appendCrcAndReply(length);
+			if (_buff_tx[0]) this->appendCrcAndReply(length_tx);
 		} while (false);
 
 		_is_receiving = true;
-		index = 0;
+		length_rx = 0;
 	}
 }
 
@@ -179,7 +182,7 @@ BitAction SlaveRtu::getDiscreteInput(uint16_t index) {
 	return bitRead(_dis[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
 }
 
-uint8_t SlaveRtu::responseReadDiscreteInputs(uint8_t * length) {
+uint8_t SlaveRtu::responseReadDiscreteInputs(uint8_t * p_length_tx) {
 
 	uint16_t address_length = makeWord(_buff_rx[4], _buff_rx[5]);
 	if (address_length == 0 || address_length > 0x07d0) return 0x03;
@@ -194,11 +197,11 @@ uint8_t SlaveRtu::responseReadDiscreteInputs(uint8_t * length) {
 
 	_buff_tx[2] = (address_length + 7) >> 3;
 
-	*length = 3 + _buff_tx[2];
+	*p_length_tx = 3 + _buff_tx[2];
 	return 0;
 }
 
-uint8_t SlaveRtu::responseWriteCoils(uint8_t * length) {
+uint8_t SlaveRtu::responseWriteSingleCoil(uint8_t * p_length_tx) {
 	uint16_t val = makeWord(_buff_rx[4], _buff_rx[5]);
 	if (val && val != 0xff00) return 0x03;
 
@@ -207,7 +210,26 @@ uint8_t SlaveRtu::responseWriteCoils(uint8_t * length) {
 
 	this->setCoil(address, val ? Bit_SET : Bit_RESET);
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
-	*length = 6;
+	*p_length_tx = 6;
 
+	return 0;
+}
+
+uint8_t SlaveRtu::responseWriteMultipleCoils(uint8_t length_rx,
+		uint8_t * p_length_tx) {
+	uint16_t quantity = makeWord(_buff_rx[4], _buff_rx[5]);
+	if ((quantity && quantity > 0x07b0) || length_rx - 9 != _buff_rx[6])
+		return 0x03;
+
+	uint16_t address = makeWord(_buff_rx[2], _buff_rx[3]);
+	if (address >= _coils_length) return 0x02;
+
+	for (uint16_t i = 0; i < quantity; i++) {
+		this->setCoil(address++,
+			bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
+	}
+
+	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
+	*p_length_tx = 6;
 	return 0;
 }

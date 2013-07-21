@@ -57,8 +57,10 @@ private:
 	bool isFunctionSupportted(uint8_t function);
 	void appendCrcAndReply(uint8_t length);
 
-	uint8_t responseReadCoils(uint8_t * length);
-	uint8_t responseWriteCoils(uint8_t * length);
+	uint8_t responseReadCoils(uint8_t * p_length_tx);
+	uint8_t responseWriteSingleCoil(uint8_t * p_length_tx);
+	uint8_t responseWriteMultipleCoils(uint8_t length_rx,
+			uint8_t * p_length_tx);
 
 	uint8_t responseReadDiscreteInputs(uint8_t * length);
 };

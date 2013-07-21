@@ -20,3 +20,11 @@ print x.read_bit(0, 1)
 print x.write_bit(0, 1, 5)
 print x.read_bit(0, 1)
 print x.write_bit(0, 0, 5)
+
+print
+
+print x.read_bit(0, 1)
+print x.write_bit(0, 1, 15)
+print x.read_bit(0, 1)
+print x.write_bit(0, 0, 15)
+
