@@ -8,19 +8,25 @@
 #include "slave-rtu.h"
 
 SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address,
-	uint8_t * supportted_functions) :
+		uint8_t * supportted_functions) :
 		_usart(usart), _tim(tim), _address(address), _supportted_functions(
-			supportted_functions) {
+				supportted_functions) {
 	_is_receiving = true;
-	_coils_length = 32;
 
-	uint8_t coils_size = (_coils_length >> 3) + (_coils_length & 0x07 ? 1 : 0);
-	_coils = (uint8_t *) malloc(coils_size * sizeof(uint8_t));
-	memset(_coils, 0, coils_size);
+	_coils_length = 32;
+	uint8_t coils_byte_size = (_coils_length + 7) >> 3;
+	_coils = (uint8_t *) malloc(coils_byte_size * sizeof(uint8_t));
+	memset(_coils, 0, coils_byte_size);
+
+	_dis_length = 16;
+	uint8_t dis_byte_size = (_dis_length + 7) >> 3;
+	_dis = (uint8_t *) malloc(dis_byte_size * sizeof(uint8_t));
+	memset(_dis, 0, dis_byte_size);
 }
 
 SlaveRtu::~SlaveRtu() {
 	free(_coils);
+	free(_dis);
 }
 
 void SlaveRtu::init() {
@@ -76,6 +82,9 @@ void SlaveRtu::handler() {
 				case 0x01:
 					exception = responseReadCoils(&length);
 					break;
+				case 0x02:
+					exception = responseReadDiscreteInputs(&length);
+					break;
 				}
 
 			} while (false);
@@ -86,8 +95,7 @@ void SlaveRtu::handler() {
 				length = 3;
 			}
 
-			if (_buff_tx[0])
-				this->appendCrcAndReply(length);
+			if (_buff_tx[0]) this->appendCrcAndReply(length);
 		} while (false);
 
 		_is_receiving = true;
@@ -149,11 +157,39 @@ uint8_t SlaveRtu::responseReadCoils(uint8_t * length) {
 
 	for (uint16_t i = 0; i < address_length; i++) {
 		bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
-			this->getCoil(address_indent + i) == Bit_SET);
+				this->getCoil(address_indent + i) == Bit_SET);
 	}
 
-	_buff_tx[2] = (address_length >> 3)
-			+ (address_length & 0x07 ? 1 : 0);
+	_buff_tx[2] = (address_length + 7) >> 3;
+
+	*length = 3 + _buff_tx[2];
+	return 0;
+}
+
+void SlaveRtu::setDiscreteInput(uint16_t index, BitAction state) {
+	assert_param(index < _dis_length);
+	bitWrite(_dis[index >> 3], index & 0x07, state == Bit_SET);
+}
+
+BitAction SlaveRtu::getDiscreteInput(uint16_t index) {
+	assert_param(index < _dis_length);
+	return bitRead(_dis[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
+}
+
+uint8_t SlaveRtu::responseReadDiscreteInputs(uint8_t * length) {
+
+	uint16_t address_length = makeWord(_buff_rx[4], _buff_rx[5]);
+	if (address_length == 0 || address_length > 0x07d0) return 0x03;
+
+	uint16_t address_indent = makeWord(_buff_rx[2], _buff_rx[3]);
+	if (address_indent + address_length > _dis_length) return 0x02;
+
+	for (uint16_t i = 0; i < address_length; i++) {
+		bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
+				this->getDiscreteInput(address_indent + i) == Bit_SET);
+	}
+
+	_buff_tx[2] = (address_length + 7) >> 3;
 
 	*length = 3 + _buff_tx[2];
 	return 0;

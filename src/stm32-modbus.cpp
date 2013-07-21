@@ -18,6 +18,7 @@ void setup() {
 	slave.init();
 
 	slave.setCoil(1, Bit_SET);
+	slave.setDiscreteInput(2, Bit_SET);
 }
 
 void loop() {
