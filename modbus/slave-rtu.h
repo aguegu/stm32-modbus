@@ -24,7 +24,7 @@
 class SlaveRtu {
 public:
 	SlaveRtu(Usart & usart, Tim & tim, uint8_t address,
-			uint8_t * supportted_functions);
+			uint8_t * const supportted_functions);
 	~SlaveRtu();
 	void init();
 	void handler();
@@ -52,7 +52,7 @@ private:
 	uint8_t _buff_tx[_BUFF_LENGTH];
 
 	const uint8_t _address;
-	uint8_t * _supportted_functions;
+	uint8_t * const _supportted_functions;
 
 	uint16_t _coil_length;
 	uint8_t * _coils;
@@ -79,6 +79,7 @@ private:
 			uint8_t * p_length_tx);
 
 	uint8_t responseReadHoldings(uint8_t * p_length_tx);
+	uint8_t responseWriteSingleHolding(uint8_t * p_length_tx);
 
 };
 

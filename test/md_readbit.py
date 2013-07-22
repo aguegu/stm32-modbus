@@ -36,10 +36,8 @@ print x.read_register(7, 0, 4, False)
 
 print
 
+print x.write_register(15, 123, 1, 6, False)
+print x.read_register(15, 1, 3, False)
+print x.write_register(0, 0, 0, 6, False)
 print x.read_register(0, 0, 3, False)
-print x.read_register(1, 0, 3, False)
-print x.read_register(4, 0, 3, False)
-print x.read_register(7, 0, 3, False)
-
-
 

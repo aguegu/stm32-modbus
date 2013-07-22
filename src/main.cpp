@@ -5,7 +5,8 @@ int main(void) __attribute__((weak));
 Usart usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd);
 Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
 
-uint8_t supports[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x0f, 0x00};
+static uint8_t supports[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x0f,
+		0x00 };
 SlaveRtu slave(usart, t1, 0x01, supports);
 
 int main(void) {
@@ -22,11 +23,11 @@ void init() {
 	delay(1000);
 
 	Gpio usart_tx(GPIOA, GPIO_Pin_9,
-		RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
+	RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
 	usart_tx.init(GPIO_Mode_AF_PP);
 
 	Gpio usart_rx(GPIOA, GPIO_Pin_10,
-		RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
+	RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
 	usart_rx.init(GPIO_Mode_IN_FLOATING);
 
 	setvbuf(stdin, NULL, _IONBF, 0);

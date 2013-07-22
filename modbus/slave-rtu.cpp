@@ -8,7 +8,7 @@
 #include "slave-rtu.h"
 
 SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address,
-		uint8_t * supportted_functions) :
+		 uint8_t * const supportted_functions) :
 		_usart(usart), _tim(tim), _address(address), _supportted_functions(
 				supportted_functions) {
 	_is_receiving = true;
@@ -104,6 +104,9 @@ void SlaveRtu::handler() {
 					break;
 				case 0x05:
 					exception = responseWriteSingleCoil(&length_tx);
+					break;
+				case 0x06:
+					exception = responseWriteSingleHolding(&length_tx);
 					break;
 				case 0x0f:
 					exception = responseWriteMultipleCoils(length_rx,
@@ -305,5 +308,18 @@ void SlaveRtu::setHolding(uint16_t index, uint16_t val) {
 uint16_t SlaveRtu::getHolding(uint16_t index) {
 	assert_param(index < _holding_length);
 	return _holdings[index];
+}
+
+uint8_t SlaveRtu::responseWriteSingleHolding(uint8_t * p_length_tx) {
+	uint16_t val = make16(_buff_rx[4], _buff_rx[5]);
+
+	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
+	if (address >= _coil_length) return 0x02;
+
+	this->setHolding(address, val);
+
+	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
+	*p_length_tx = 6;
+	return 0;
 }
 
