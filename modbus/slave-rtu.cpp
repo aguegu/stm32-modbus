@@ -18,15 +18,20 @@ SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address,
 	_coils = (uint8_t *) malloc(coils_byte_size * sizeof(uint8_t));
 	memset(_coils, 0, coils_byte_size);
 
-	_dis_length = 16;
-	uint8_t dis_byte_size = (_dis_length + 7) >> 3;
-	_dis = (uint8_t *) malloc(dis_byte_size * sizeof(uint8_t));
-	memset(_dis, 0, dis_byte_size);
+	_bit_input_length = 16;
+	uint8_t bit_input_byte_size = (_bit_input_length + 7) >> 3;
+	_bit_inputs = (uint8_t *) malloc(bit_input_byte_size * sizeof(uint8_t));
+	memset(_bit_inputs, 0, bit_input_byte_size);
+
+	_short_input_length = 8;
+	_short_inputs = (uint16_t *) malloc(_short_input_length * sizeof(uint16_t));
+	memset(_short_inputs, 0,  _short_input_length);
 }
 
 SlaveRtu::~SlaveRtu() {
 	free(_coils);
-	free(_dis);
+	free(_bit_inputs);
+	free(_short_inputs);
 }
 
 void SlaveRtu::init() {
@@ -83,7 +88,7 @@ void SlaveRtu::handler() {
 					exception = responseReadCoils(&length_tx);
 					break;
 				case 0x02:
-					exception = responseReadDiscreteInputs(&length_tx);
+					exception = responseReadBitInputs(&length_tx);
 					break;
 				case 0x05:
 					exception = responseWriteSingleCoil(&length_tx);
@@ -155,10 +160,10 @@ BitAction SlaveRtu::getCoil(uint16_t index) {
 
 uint8_t SlaveRtu::responseReadCoils(uint8_t * length) {
 
-	uint16_t address_length = makeWord(_buff_rx[4], _buff_rx[5]);
+	uint16_t address_length = make16(_buff_rx[4], _buff_rx[5]);
 	if (address_length == 0 || address_length > 0x07d0) return 0x03;
 
-	uint16_t address_indent = makeWord(_buff_rx[2], _buff_rx[3]);
+	uint16_t address_indent = make16(_buff_rx[2], _buff_rx[3]);
 	if (address_indent + address_length > _coils_length) return 0x02;
 
 	for (uint16_t i = 0; i < address_length; i++) {
@@ -173,22 +178,22 @@ uint8_t SlaveRtu::responseReadCoils(uint8_t * length) {
 }
 
 void SlaveRtu::setDiscreteInput(uint16_t index, BitAction state) {
-	assert_param(index < _dis_length);
-	bitWrite(_dis[index >> 3], index & 0x07, state == Bit_SET);
+	assert_param(index < _bit_input_length);
+	bitWrite(_bit_inputs[index >> 3], index & 0x07, state == Bit_SET);
 }
 
 BitAction SlaveRtu::getDiscreteInput(uint16_t index) {
-	assert_param(index < _dis_length);
-	return bitRead(_dis[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
+	assert_param(index < _bit_input_length);
+	return bitRead(_bit_inputs[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
 }
 
-uint8_t SlaveRtu::responseReadDiscreteInputs(uint8_t * p_length_tx) {
+uint8_t SlaveRtu::responseReadBitInputs(uint8_t * p_length_tx) {
 
-	uint16_t address_length = makeWord(_buff_rx[4], _buff_rx[5]);
+	uint16_t address_length = make16(_buff_rx[4], _buff_rx[5]);
 	if (address_length == 0 || address_length > 0x07d0) return 0x03;
 
-	uint16_t address_indent = makeWord(_buff_rx[2], _buff_rx[3]);
-	if (address_indent + address_length > _dis_length) return 0x02;
+	uint16_t address_indent = make16(_buff_rx[2], _buff_rx[3]);
+	if (address_indent + address_length > _bit_input_length) return 0x02;
 
 	for (uint16_t i = 0; i < address_length; i++) {
 		bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
@@ -202,10 +207,10 @@ uint8_t SlaveRtu::responseReadDiscreteInputs(uint8_t * p_length_tx) {
 }
 
 uint8_t SlaveRtu::responseWriteSingleCoil(uint8_t * p_length_tx) {
-	uint16_t val = makeWord(_buff_rx[4], _buff_rx[5]);
+	uint16_t val = make16(_buff_rx[4], _buff_rx[5]);
 	if (val && val != 0xff00) return 0x03;
 
-	uint16_t address = makeWord(_buff_rx[2], _buff_rx[3]);
+	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
 	if (address >= _coils_length) return 0x02;
 
 	this->setCoil(address, val ? Bit_SET : Bit_RESET);
@@ -217,11 +222,11 @@ uint8_t SlaveRtu::responseWriteSingleCoil(uint8_t * p_length_tx) {
 
 uint8_t SlaveRtu::responseWriteMultipleCoils(uint8_t length_rx,
 		uint8_t * p_length_tx) {
-	uint16_t quantity = makeWord(_buff_rx[4], _buff_rx[5]);
+	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
 	if ((quantity && quantity > 0x07b0) || length_rx - 9 != _buff_rx[6])
 		return 0x03;
 
-	uint16_t address = makeWord(_buff_rx[2], _buff_rx[3]);
+	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
 	if (address >= _coils_length) return 0x02;
 
 	for (uint16_t i = 0; i < quantity; i++) {
