@@ -41,3 +41,21 @@ print x.read_register(15, 1, 3, False)
 print x.write_register(0, 0, 0, 6, False)
 print x.read_register(0, 0, 3, False)
 
+print 
+
+print x.write_register(1, 345, 0, 16, False)
+print x.read_register(1, 0, 3, False)
+
+x.write_long(2, 12312)
+print x.read_long(2)
+
+x.write_float(4, 3.14159, 2)
+print x.read_float(4, 3, 2)
+
+x.write_float(6, 3.1415926, 4)
+print x.read_float(6, 3, 4)
+
+x.write_string(10, "hello", 3)
+print x.read_string(10, 3, 3)
+
+

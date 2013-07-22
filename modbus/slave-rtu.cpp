@@ -8,7 +8,7 @@
 #include "slave-rtu.h"
 
 SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address,
-		 uint8_t * const supportted_functions) :
+		uint8_t * const supportted_functions) :
 		_usart(usart), _tim(tim), _address(address), _supportted_functions(
 				supportted_functions) {
 	_is_receiving = true;
@@ -110,6 +110,10 @@ void SlaveRtu::handler() {
 					break;
 				case 0x0f:
 					exception = responseWriteMultipleCoils(length_rx,
+							&length_tx);
+					break;
+				case 0x10:
+					exception = responseWriteMultipleHoldings(length_rx,
 							&length_tx);
 					break;
 				}
@@ -238,8 +242,8 @@ uint8_t SlaveRtu::responseWriteSingleCoil(uint8_t * p_length_tx) {
 uint8_t SlaveRtu::responseWriteMultipleCoils(uint8_t length_rx,
 		uint8_t * p_length_tx) {
 	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
-	if ((quantity && quantity > 0x07b0) || length_rx - 9 != _buff_rx[6])
-		return 0x03;
+	if (quantity && quantity > 0x07b0) return 0x03;
+	if (length_rx - 9 != _buff_rx[6]) return 0x03;
 
 	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
 	if (address + quantity >= _coil_length) return 0x02;
@@ -317,6 +321,26 @@ uint8_t SlaveRtu::responseWriteSingleHolding(uint8_t * p_length_tx) {
 	if (address >= _coil_length) return 0x02;
 
 	this->setHolding(address, val);
+
+	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
+	*p_length_tx = 6;
+	return 0;
+}
+
+uint8_t SlaveRtu::responseWriteMultipleHoldings(uint8_t length_rx,
+		uint8_t * p_length_tx) {
+	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
+	if (!quantity || quantity > 0x7b) return 0x03;
+	if (length_rx - 9 != _buff_rx[6]) return 0x03;
+	if (quantity!= _buff_rx[6] >> 1) return 0x03;
+
+	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
+	if (address + quantity > _holding_length) return 0x02;
+
+	for (uint8_t i = 0; i < quantity; i++) {
+		_holdings[address + i] =
+		make16(_buff_rx[7 + i + i], _buff_rx[8 + i + i]);
+	}
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
