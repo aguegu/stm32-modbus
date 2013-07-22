@@ -20,6 +20,7 @@ void setup() {
 	slave.setCoil(1, Bit_SET);
 	slave.setBitInput(2, Bit_SET);
 	slave.setShortInput(3, 876);
+	slave.setHolding(4, 1234);
 }
 
 void loop() {

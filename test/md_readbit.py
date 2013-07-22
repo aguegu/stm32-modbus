@@ -34,5 +34,12 @@ print x.read_register(1, 0, 4, False)
 print x.read_register(3, 0, 4, False)
 print x.read_register(7, 0, 4, False)
 
+print
+
+print x.read_register(0, 0, 3, False)
+print x.read_register(1, 0, 3, False)
+print x.read_register(4, 0, 3, False)
+print x.read_register(7, 0, 3, False)
+
 
 
