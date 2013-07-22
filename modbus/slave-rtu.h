@@ -44,6 +44,7 @@ private:
 	static const uint16_t _BUFF_LENGTH = 256;
 	uint8_t _buff_rx[_BUFF_LENGTH];
 	uint8_t _buff_tx[_BUFF_LENGTH];
+
 	const uint8_t _address;
 	uint8_t * _supportted_functions;
 
@@ -58,14 +59,15 @@ private:
 
 	bool checkFrameCrc(const uint8_t *p, uint8_t length);
 	bool isFunctionSupportted(uint8_t function);
-	void appendCrcAndReply(uint8_t length);
+	void appendCrcAndReply(uint8_t length_tx);
 
 	uint8_t responseReadCoils(uint8_t * p_length_tx);
 	uint8_t responseWriteSingleCoil(uint8_t * p_length_tx);
 	uint8_t responseWriteMultipleCoils(uint8_t length_rx,
 		uint8_t * p_length_tx);
 
-	uint8_t responseReadBitInputs(uint8_t * length);
+	uint8_t responseReadBitInputs(uint8_t * p_length_tx);
+	uint8_t responseReadShortInputs(uint8_t * p_length_tx);
 };
 
 #endif /* SLAVE_RTU_H_ */

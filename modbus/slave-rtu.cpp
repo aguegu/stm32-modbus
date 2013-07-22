@@ -96,6 +96,7 @@ void SlaveRtu::handler() {
 				case 0x0f:
 					exception = responseWriteMultipleCoils(length_rx,
 							&length_tx);
+					break;
 				}
 
 			} while (false);
@@ -141,11 +142,11 @@ bool SlaveRtu::isFunctionSupportted(uint8_t function) {
 	return false;
 }
 
-void SlaveRtu::appendCrcAndReply(uint8_t length) {
-	uint16_t v = crc.calc(_buff_tx, length);
-	_buff_tx[length] = lowByte(v);
-	_buff_tx[length + 1] = highByte(v);
-	_usart.write(_buff_tx, length + 2);
+void SlaveRtu::appendCrcAndReply(uint8_t length_tx) {
+	uint16_t v = crc.calc(_buff_tx, length_tx);
+	_buff_tx[length_tx] = lowByte(v);
+	_buff_tx[length_tx + 1] = highByte(v);
+	_usart.write(_buff_tx, length_tx + 2);
 }
 
 void SlaveRtu::setCoil(uint16_t index, BitAction state) {
@@ -158,7 +159,7 @@ BitAction SlaveRtu::getCoil(uint16_t index) {
 	return bitRead(_coils[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
 }
 
-uint8_t SlaveRtu::responseReadCoils(uint8_t * length) {
+uint8_t SlaveRtu::responseReadCoils(uint8_t * p_length_tx) {
 
 	uint16_t address_length = make16(_buff_rx[4], _buff_rx[5]);
 	if (address_length == 0 || address_length > 0x07d0) return 0x03;
@@ -173,7 +174,7 @@ uint8_t SlaveRtu::responseReadCoils(uint8_t * length) {
 
 	_buff_tx[2] = (address_length + 7) >> 3;
 
-	*length = 3 + _buff_tx[2];
+	*p_length_tx = 3 + _buff_tx[2];
 	return 0;
 }
 
