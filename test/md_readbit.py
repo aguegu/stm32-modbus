@@ -29,10 +29,10 @@ print x.read_bit(0, 1)
 print x.write_bit(0, 0, 15)
 
 print 
-print x.read_register(0, 0, 3, False)
-print x.read_register(1, 0, 3, False)
-print x.read_register(3, 0, 3, False)
-print x.read_register(7, 0, 3, False)
+print x.read_register(0, 0, 4, False)
+print x.read_register(1, 0, 4, False)
+print x.read_register(3, 0, 4, False)
+print x.read_register(7, 0, 4, False)
 
 
 

@@ -90,7 +90,7 @@ void SlaveRtu::handler() {
 				case 0x02:
 					exception = responseReadBitInputs(&length_tx);
 					break;
-				case 0x03:
+				case 0x04:
 					exception = responseReadShortInputs(&length_tx);
 					break;
 				case 0x05:

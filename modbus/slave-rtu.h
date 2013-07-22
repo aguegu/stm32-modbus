@@ -60,6 +60,7 @@ private:
 	uint16_t _short_input_length;
 	uint16_t *_short_inputs;
 
+
 	bool checkFrameCrc(const uint8_t *p, uint8_t length);
 	bool isFunctionSupportted(uint8_t function);
 	void appendCrcAndReply(uint8_t length_tx);

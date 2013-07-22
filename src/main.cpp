@@ -5,7 +5,7 @@ int main(void) __attribute__((weak));
 Usart usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd);
 Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
 
-uint8_t supports[] = {0x01, 0x02, 0x03, 0x05, 0x0f, 0x00};
+uint8_t supports[] = {0x01, 0x02, 0x04, 0x05, 0x0f, 0x00};
 SlaveRtu slave(usart, t1, 0x01, supports);
 
 int main(void) {
