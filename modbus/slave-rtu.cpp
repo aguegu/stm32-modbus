@@ -25,7 +25,7 @@ SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address,
 
 	_short_input_length = 8;
 	_short_inputs = (uint16_t *) malloc(_short_input_length * sizeof(uint16_t));
-	memset(_short_inputs, 0,  _short_input_length);
+	memset(_short_inputs, 0, _short_input_length);
 }
 
 SlaveRtu::~SlaveRtu() {
@@ -90,6 +90,9 @@ void SlaveRtu::handler() {
 				case 0x02:
 					exception = responseReadBitInputs(&length_tx);
 					break;
+				case 0x03:
+					exception = responseReadShortInputs(&length_tx);
+					break;
 				case 0x05:
 					exception = responseWriteSingleCoil(&length_tx);
 					break;
@@ -98,7 +101,6 @@ void SlaveRtu::handler() {
 							&length_tx);
 					break;
 				}
-
 			} while (false);
 
 			if (exception) {
@@ -178,12 +180,12 @@ uint8_t SlaveRtu::responseReadCoils(uint8_t * p_length_tx) {
 	return 0;
 }
 
-void SlaveRtu::setDiscreteInput(uint16_t index, BitAction state) {
+void SlaveRtu::setBitInput(uint16_t index, BitAction state) {
 	assert_param(index < _bit_input_length);
 	bitWrite(_bit_inputs[index >> 3], index & 0x07, state == Bit_SET);
 }
 
-BitAction SlaveRtu::getDiscreteInput(uint16_t index) {
+BitAction SlaveRtu::getBitInput(uint16_t index) {
 	assert_param(index < _bit_input_length);
 	return bitRead(_bit_inputs[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
 }
@@ -198,7 +200,7 @@ uint8_t SlaveRtu::responseReadBitInputs(uint8_t * p_length_tx) {
 
 	for (uint16_t i = 0; i < address_length; i++) {
 		bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
-				this->getDiscreteInput(address_indent + i) == Bit_SET);
+				this->getBitInput(address_indent + i) == Bit_SET);
 	}
 
 	_buff_tx[2] = (address_length + 7) >> 3;
@@ -228,14 +230,42 @@ uint8_t SlaveRtu::responseWriteMultipleCoils(uint8_t length_rx,
 		return 0x03;
 
 	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
-	if (address >= _coils_length) return 0x02;
+	if (address + quantity >= _coils_length) return 0x02;
 
 	for (uint16_t i = 0; i < quantity; i++) {
 		this->setCoil(address++,
-			bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
+		bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
 	}
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
 	return 0;
+}
+
+uint8_t SlaveRtu::responseReadShortInputs(uint8_t * p_length_tx) {
+
+	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
+	if (!quantity || quantity > 0x07d) return 0x03;
+
+	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
+	if (address + quantity > _short_input_length) return 0x02;
+
+	for (uint8_t i = 0; i < quantity; i++) {
+		_buff_tx[3 + i + i] = highByte(_short_inputs[address + i]);
+		_buff_tx[4 + i + i] = lowByte(_short_inputs[address + i]);
+	}
+
+	_buff_tx[2] = quantity * 2;
+	*p_length_tx = _buff_tx[2] + 3;
+	return 0;
+}
+
+void SlaveRtu::setShortInput(uint16_t index, uint16_t val) {
+	assert_param(index < _short_input_length);
+	_short_inputs[index] = val;
+}
+
+uint16_t SlaveRtu::getShortInput(uint16_t index) {
+	assert_param(index < _short_input_length);
+	return _short_inputs[index];
 }

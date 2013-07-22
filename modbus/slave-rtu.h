@@ -33,8 +33,11 @@ public:
 	void setCoil(uint16_t index, BitAction state);
 	BitAction getCoil(uint16_t index);
 
-	void setDiscreteInput(uint16_t index, BitAction state);
-	BitAction getDiscreteInput(uint16_t index);
+	void setBitInput(uint16_t index, BitAction state);
+	BitAction getBitInput(uint16_t index);
+
+	void setShortInput(uint16_t index, uint16_t val);
+	uint16_t getShortInput(uint16_t index);
 
 private:
 	Usart & _usart;
