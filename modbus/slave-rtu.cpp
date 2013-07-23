@@ -79,7 +79,7 @@ void SlaveRtu::initHoldings(uint16_t length) {
 void SlaveRtu::init() {
 
 	_usart.init(19200, USART_WordLength_9b, USART_StopBits_1,
-		USART_Parity_Even);
+	USART_Parity_Even);
 
 	_tim.init(20000, (770000UL / 19200));
 	_tim.configureIT(TIM_IT_Update);
@@ -233,7 +233,7 @@ uint8_t SlaveRtu::onReadBitInputs(uint8_t * p_length_tx) {
 	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
 	if (address + length > _bit_input_length) return 0x02;
 
-	updateBitInputs(address, length);
+	if (updateBitInputs(address, length)) return 0x04;
 
 	for (uint16_t i = 0; i < length; i++)
 		bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
@@ -254,7 +254,7 @@ uint8_t SlaveRtu::onWriteSingleCoil(uint8_t * p_length_tx) {
 
 	this->setCoil(address, val ? Bit_SET : Bit_RESET);
 
-	updateCoils(address, 1);
+	if (updateCoils(address, 1)) return 0x04;
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
@@ -274,7 +274,7 @@ uint8_t SlaveRtu::onWriteMultipleCoils(uint8_t length_rx,
 		this->setCoil(address++,
 		bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
 
-	updateCoils(address, length);
+	if (updateCoils(address, length)) return 0x04;
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
@@ -288,7 +288,7 @@ uint8_t SlaveRtu::onReadShortInputs(uint8_t * p_length_tx) {
 	uint16_t index = make16(_buff_rx[2], _buff_rx[3]);
 	if (index + length > _short_input_length) return 0x02;
 
-	updateShortInputs(index, length);
+	if (updateShortInputs(index, length)) return 0x04;
 
 	for (uint8_t i = 0; i < length; i++) {
 		_buff_tx[3 + i + i] = highByte(_short_inputs[index + i]);
@@ -345,7 +345,7 @@ uint8_t SlaveRtu::onWriteSingleHolding(uint8_t * p_length_tx) {
 
 	this->setHolding(index, val);
 
-	updateHoldings(index, 1);
+	if (updateHoldings(index, 1)) return 0x04;
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
@@ -367,7 +367,7 @@ uint8_t SlaveRtu::onWriteMultipleHoldings(uint8_t length_rx,
 		make16(_buff_rx[7 + i + i], _buff_rx[8 + i + i]);
 	}
 
-	updateHoldings(index, length);
+	if (updateHoldings(index, length)) return 0x04;
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;

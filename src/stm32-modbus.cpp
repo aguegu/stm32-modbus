@@ -1,5 +1,4 @@
 #include "stm32-template.h"
-#include "modbus/crc.h"
 
 Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
 Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
@@ -16,11 +15,6 @@ void setup() {
 	t2.setState();
 
 	slave.init();
-
-	slave.setCoil(1, Bit_SET);
-	slave.setBitInput(2, Bit_SET);
-	slave.setShortInput(3, 876);
-	slave.setHolding(4, 1234);
 }
 
 void loop() {

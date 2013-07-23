@@ -48,10 +48,10 @@ public:
 
 protected:
 
-	virtual void updateBitInputs(uint16_t index, uint16_t length) {};
-	virtual void updateShortInputs(uint16_t index, uint16_t length) {};
-	virtual void updateCoils(uint16_t index, uint16_t length) {};
-	virtual void updateHoldings(uint16_t index, uint16_t length) {};
+	virtual uint8_t updateBitInputs(uint16_t index, uint16_t length) {return 0;};
+	virtual uint8_t updateShortInputs(uint16_t index, uint16_t length) {return 0;};
+	virtual uint8_t updateCoils(uint16_t index, uint16_t length) {return 0;};
+	virtual uint8_t updateHoldings(uint16_t index, uint16_t length) {return 0;};
 
 private:
 	Usart & _usart;
@@ -67,7 +67,7 @@ private:
 	int16_t _coil_length;
 	uint8_t * _coils;
 
-	uint16_t _bit_input_length;	// Discrete Inputs
+	uint16_t _bit_input_length;
 	uint8_t * _bit_inputs;
 
 	uint16_t _short_input_length;

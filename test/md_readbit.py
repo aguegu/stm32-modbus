@@ -4,6 +4,9 @@ import minimalmodbus
 x = minimalmodbus.Instrument('/dev/ttyUSB0', 1) 
 x.serial.parity = 'E'
 
+print x.read_bit(0, 2)
+
+'''
 print x.read_bit(0, 1)
 print x.read_bit(1, 1)
 print x.read_bit(31, 1)
@@ -58,4 +61,4 @@ print x.read_float(6, 3, 4)
 x.write_string(10, "hello", 3)
 print x.read_string(10, 3, 3)
 
-
+'''

@@ -22,6 +22,7 @@
 #include "adc/adc.h"
 
 #include "modbus/slave-rtu.h"
+#include "node.h"
 
 void init();
 extern void setup();
@@ -30,7 +31,7 @@ extern void delay(u32 ms);
 extern void delayMicroseconds(vu32 us);
 
 extern Usart usart;
-extern SlaveRtu slave;
+extern Node slave;
 
 #define lowByte(w) ((uint8_t) ((w) & 0xff))
 #define highByte(w) ((uint8_t) ((w) >> 8))
