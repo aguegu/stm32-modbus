@@ -18,8 +18,8 @@ Node::Node(Usart & usart, Tim & tim, uint8_t address) :
 
 	_btns = (Gpio **) malloc(_bit_input_length * sizeof(Gpio *));
 
-	_btns[0] = new Gpio(GPIOA, GPIO_Pin_0, RCC_APB2Periph_GPIOA);
-	_btns[1] = new Gpio(GPIOA, GPIO_Pin_1, RCC_APB2Periph_GPIOA);
+	_btns[0] = new Gpio(GPIOA, GPIO_Pin_1, RCC_APB2Periph_GPIOA);
+	_btns[1] = new Gpio(GPIOA, GPIO_Pin_0, RCC_APB2Periph_GPIOA);
 }
 
 Node::~Node() {
@@ -38,6 +38,6 @@ void Node::init() {
 
 uint8_t Node::updateBitInputs(uint16_t index, uint16_t length) {
 	for (uint16_t i = 0; i < length; i++)
-		this->setBitInput(index + i, _btns[i]->getInput());
+		this->setBitInput(index + i, _btns[index + i]->getInput());
 	return 0;
 }

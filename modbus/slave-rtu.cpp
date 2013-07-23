@@ -223,7 +223,7 @@ void SlaveRtu::setBitInput(uint16_t index, BitAction state) {
 
 BitAction SlaveRtu::getBitInput(uint16_t index) {
 	assert_param(index < _bit_input_length);
-	return bitRead(_bit_inputs[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
+	return bitRead(_bit_inputs[index >> 3], index & 0x07) ? Bit_SET : Bit_RESET;
 }
 
 uint8_t SlaveRtu::onReadBitInputs(uint8_t * p_length_tx) {
