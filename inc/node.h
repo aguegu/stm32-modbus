@@ -10,6 +10,7 @@
 
 #include "modbus/slave-rtu.h"
 #include "gpio/gpio.h"
+#include <cstdlib>
 
 class Node: public SlaveRtu {
 public:
@@ -18,7 +19,7 @@ public:
 	void init();
 
 private:
-	Gpio _btn;
+	Gpio ** _btns;
 
 	uint8_t updateBitInputs(uint16_t index, uint16_t length);
 	uint8_t updateShortInputs(uint16_t index, uint16_t length) {return 0;};

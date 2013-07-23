@@ -48,6 +48,11 @@ public:
 
 protected:
 
+	int16_t _coil_length;
+	uint16_t _bit_input_length;
+	uint16_t _short_input_length;
+	uint16_t _holding_length;
+
 	virtual uint8_t updateBitInputs(uint16_t index, uint16_t length) {return 0;};
 	virtual uint8_t updateShortInputs(uint16_t index, uint16_t length) {return 0;};
 	virtual uint8_t updateCoils(uint16_t index, uint16_t length) {return 0;};
@@ -64,16 +69,9 @@ private:
 
 	const uint8_t _address;
 
-	int16_t _coil_length;
 	uint8_t * _coils;
-
-	uint16_t _bit_input_length;
 	uint8_t * _bit_inputs;
-
-	uint16_t _short_input_length;
 	uint16_t * _short_inputs;
-
-	uint16_t _holding_length;
 	uint16_t * _holdings;
 
 	bool checkFrameCrc(const uint8_t *p, uint8_t length);
