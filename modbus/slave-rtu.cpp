@@ -79,7 +79,7 @@ void SlaveRtu::initHoldings(uint16_t length) {
 void SlaveRtu::init() {
 
 	_usart.init(19200, USART_WordLength_9b, USART_StopBits_1,
-	USART_Parity_Even);
+		USART_Parity_Even);
 
 	_tim.init(20000, (770000UL / 19200));
 	_tim.configureIT(TIM_IT_Update);
@@ -199,18 +199,18 @@ BitAction SlaveRtu::getCoil(uint16_t index) {
 
 uint8_t SlaveRtu::onReadCoils(uint8_t * p_length_tx) {
 
-	uint16_t address_length = make16(_buff_rx[4], _buff_rx[5]);
-	if (!address_length || address_length > 0x07d0) return 0x03;
+	uint16_t length = make16(_buff_rx[4], _buff_rx[5]);
+	if (!length || length > 0x07d0) return 0x03;
 
-	uint16_t address_indent = make16(_buff_rx[2], _buff_rx[3]);
-	if (address_indent + address_length > _coil_length) return 0x02;
+	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
+	if (address + length > _coil_length) return 0x02;
 
-	for (uint16_t i = 0; i < address_length; i++) {
+	for (uint16_t i = 0; i < length; i++) {
 		bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
-			this->getCoil(address_indent + i) == Bit_SET);
+			this->getCoil(address + i) == Bit_SET);
 	}
 
-	_buff_tx[2] = (address_length + 7) >> 3;
+	_buff_tx[2] = (length + 7) >> 3;
 
 	*p_length_tx = 3 + _buff_tx[2];
 	return 0;
@@ -227,17 +227,17 @@ BitAction SlaveRtu::getBitInput(uint16_t index) {
 }
 
 uint8_t SlaveRtu::onReadBitInputs(uint8_t * p_length_tx) {
-
 	uint16_t length = make16(_buff_rx[4], _buff_rx[5]);
 	if (!length || length > 0x07d0) return 0x03;
 
 	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
 	if (address + length > _bit_input_length) return 0x02;
 
-	for (uint16_t i = 0; i < length; i++) {
+	updateBitInputs(address, length);
+
+	for (uint16_t i = 0; i < length; i++)
 		bitWrite(_buff_tx[3 + (i >> 3)], i & 0x07,
 			this->getBitInput(address + i) == Bit_SET);
-	}
 
 	_buff_tx[2] = (length + 7) >> 3;
 
@@ -254,6 +254,8 @@ uint8_t SlaveRtu::onWriteSingleCoil(uint8_t * p_length_tx) {
 
 	this->setCoil(address, val ? Bit_SET : Bit_RESET);
 
+	updateCoils(address, 1);
+
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
 	return 0;
@@ -261,16 +263,18 @@ uint8_t SlaveRtu::onWriteSingleCoil(uint8_t * p_length_tx) {
 
 uint8_t SlaveRtu::onWriteMultipleCoils(uint8_t length_rx,
 	uint8_t * p_length_tx) {
-	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
-	if (!quantity || quantity > 0x07b0) return 0x03;
+	uint16_t length = make16(_buff_rx[4], _buff_rx[5]);
+	if (!length || length > 0x07b0) return 0x03;
 	if (length_rx - 9 != _buff_rx[6]) return 0x03;
 
 	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
-	if (address + quantity >= _coil_length) return 0x02;
+	if (address + length >= _coil_length) return 0x02;
 
-	for (uint16_t i = 0; i < quantity; i++)
+	for (uint16_t i = 0; i < length; i++)
 		this->setCoil(address++,
 		bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
+
+	updateCoils(address, length);
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
@@ -278,18 +282,20 @@ uint8_t SlaveRtu::onWriteMultipleCoils(uint8_t length_rx,
 }
 
 uint8_t SlaveRtu::onReadShortInputs(uint8_t * p_length_tx) {
-	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
-	if (!quantity || quantity > 0x07d) return 0x03;
+	uint16_t length = make16(_buff_rx[4], _buff_rx[5]);
+	if (!length || length > 0x07d) return 0x03;
 
-	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
-	if (address + quantity > _short_input_length) return 0x02;
+	uint16_t index = make16(_buff_rx[2], _buff_rx[3]);
+	if (index + length > _short_input_length) return 0x02;
 
-	for (uint8_t i = 0; i < quantity; i++) {
-		_buff_tx[3 + i + i] = highByte(_short_inputs[address + i]);
-		_buff_tx[4 + i + i] = lowByte(_short_inputs[address + i]);
+	updateShortInputs(index, length);
+
+	for (uint8_t i = 0; i < length; i++) {
+		_buff_tx[3 + i + i] = highByte(_short_inputs[index + i]);
+		_buff_tx[4 + i + i] = lowByte(_short_inputs[index + i]);
 	}
 
-	_buff_tx[2] = quantity * 2;
+	_buff_tx[2] = length * 2;
 	*p_length_tx = _buff_tx[2] + 3;
 	return 0;
 }
@@ -305,18 +311,18 @@ uint16_t SlaveRtu::getShortInput(uint16_t index) {
 }
 
 uint8_t SlaveRtu::onReadHoldings(uint8_t * p_length_tx) {
-	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
-	if (!quantity || quantity > 0x07d) return 0x03;
+	uint16_t length = make16(_buff_rx[4], _buff_rx[5]);
+	if (!length || length > 0x07d) return 0x03;
 
-	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
-	if (address + quantity > _holding_length) return 0x02;
+	uint16_t index = make16(_buff_rx[2], _buff_rx[3]);
+	if (index + length > _holding_length) return 0x02;
 
-	for (uint8_t i = 0; i < quantity; i++) {
-		_buff_tx[3 + i + i] = highByte(_holdings[address + i]);
-		_buff_tx[4 + i + i] = lowByte(_holdings[address + i]);
+	for (uint8_t i = 0; i < length; i++) {
+		_buff_tx[3 + i + i] = highByte(_holdings[index + i]);
+		_buff_tx[4 + i + i] = lowByte(_holdings[index + i]);
 	}
 
-	_buff_tx[2] = quantity * 2;
+	_buff_tx[2] = length * 2;
 	*p_length_tx = _buff_tx[2] + 3;
 	return 0;
 }
@@ -334,10 +340,12 @@ uint16_t SlaveRtu::getHolding(uint16_t index) {
 uint8_t SlaveRtu::onWriteSingleHolding(uint8_t * p_length_tx) {
 	uint16_t val = make16(_buff_rx[4], _buff_rx[5]);
 
-	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
-	if (address >= _coil_length) return 0x02;
+	uint16_t index = make16(_buff_rx[2], _buff_rx[3]);
+	if (index >= _coil_length) return 0x02;
 
-	this->setHolding(address, val);
+	this->setHolding(index, val);
+
+	updateHoldings(index, 1);
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
@@ -346,18 +354,20 @@ uint8_t SlaveRtu::onWriteSingleHolding(uint8_t * p_length_tx) {
 
 uint8_t SlaveRtu::onWriteMultipleHoldings(uint8_t length_rx,
 	uint8_t * p_length_tx) {
-	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
-	if (!quantity || quantity > 0x7b) return 0x03;
+	uint16_t length = make16(_buff_rx[4], _buff_rx[5]);
+	if (!length || length > 0x7b) return 0x03;
 	if (length_rx - 9 != _buff_rx[6]) return 0x03;
-	if (quantity != _buff_rx[6] >> 1) return 0x03;
+	if (length != _buff_rx[6] >> 1) return 0x03;
 
-	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
-	if (address + quantity > _holding_length) return 0x02;
+	uint16_t index = make16(_buff_rx[2], _buff_rx[3]);
+	if (index + length > _holding_length) return 0x02;
 
-	for (uint8_t i = 0; i < quantity; i++) {
-		_holdings[address + i] =
+	for (uint8_t i = 0; i < length; i++) {
+		_holdings[index + i] =
 		make16(_buff_rx[7 + i + i], _buff_rx[8 + i + i]);
 	}
+
+	updateHoldings(index, length);
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;

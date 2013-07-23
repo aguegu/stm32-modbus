@@ -24,7 +24,7 @@
 class SlaveRtu {
 public:
 	SlaveRtu(Usart & usart, Tim & tim, uint8_t address);
-	~SlaveRtu();
+	virtual ~SlaveRtu();
 	void init();
 	void handler();
 	void handleTimIrq();
@@ -45,6 +45,13 @@ public:
 
 	void setHolding(uint16_t index, uint16_t val);
 	uint16_t getHolding(uint16_t index);
+
+protected:
+
+	virtual void updateBitInputs(uint16_t index, uint16_t length) {};
+	virtual void updateShortInputs(uint16_t index, uint16_t length) {};
+	virtual void updateCoils(uint16_t index, uint16_t length) {};
+	virtual void updateHoldings(uint16_t index, uint16_t length) {};
 
 private:
 	Usart & _usart;
