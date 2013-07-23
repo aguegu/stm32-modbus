@@ -94,13 +94,10 @@ void SlaveRtu::init() {
 }
 
 void SlaveRtu::handler() {
-	//extern Gpio led_blue;
-
 	static uint16_t length_rx = 0;
 
 	if (_usart.available()) {
 		_buff_rx[length_rx++] = _usart.read();
-		//led_blue.set(Bit_SET);
 		_tim.setCounter(0x0000);
 		_tim.setState(ENABLE);
 	}
@@ -164,13 +161,10 @@ void SlaveRtu::handler() {
 }
 
 void SlaveRtu::handleTimIrq() {
-	//extern Gpio led_blue;
-
 	if (_tim.getITStatus(TIM_IT_Update) == SET) {
 		_tim.clearITPendingBit(TIM_IT_Update);
 		_tim.setState(DISABLE);
 		_is_receiving = false;
-		//led_blue.set(Bit_RESET);
 	}
 }
 

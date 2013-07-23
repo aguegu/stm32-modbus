@@ -3,9 +3,7 @@
 int main(void) __attribute__((weak));
 
 Usart usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd);
-Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
 
-Node slave(usart, t1, 0x01);
 
 int main(void) {
 	init();

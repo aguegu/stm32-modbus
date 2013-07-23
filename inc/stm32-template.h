@@ -21,9 +21,6 @@
 #include "i2c/i2c.h"
 #include "adc/adc.h"
 
-#include "modbus/slave-rtu.h"
-#include "node.h"
-
 void init();
 extern void setup();
 extern void loop();
@@ -31,7 +28,6 @@ extern void delay(u32 ms);
 extern void delayMicroseconds(vu32 us);
 
 extern Usart usart;
-extern Node slave;
 
 #define lowByte(w) ((uint8_t) ((w) & 0xff))
 #define highByte(w) ((uint8_t) ((w) >> 8))
