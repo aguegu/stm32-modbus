@@ -7,28 +7,30 @@
 
 #include "slave-rtu.h"
 
-SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address,
-	uint8_t * const supportted_functions) :
-		_usart(usart), _tim(tim), _address(address), _supportted_functions(
-			supportted_functions) {
+SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address) :
+		_usart(usart), _tim(tim), _address(address) {
 	_is_receiving = true;
 
 	_coil_length = 32;
 	uint8_t coils_byte_size = (_coil_length + 7) >> 3;
 	_coils = (uint8_t *) malloc(coils_byte_size * sizeof(uint8_t));
+	assert_param(_coils);
 	memset(_coils, 0, coils_byte_size);
 
 	_bit_input_length = 16;
 	uint8_t bit_input_byte_size = (_bit_input_length + 7) >> 3;
 	_bit_inputs = (uint8_t *) malloc(bit_input_byte_size * sizeof(uint8_t));
+	assert_param(_bit_inputs);
 	memset(_bit_inputs, 0, bit_input_byte_size);
 
 	_short_input_length = 8;
 	_short_inputs = (uint16_t *) malloc(_short_input_length * sizeof(uint16_t));
+	assert_param(_short_inputs);
 	memset(_short_inputs, 0, _short_input_length * sizeof(uint16_t));
 
 	_holding_length = 16;
 	_holdings = (uint16_t *) malloc(_holding_length * sizeof(uint16_t));
+	assert_param(_holdings);
 	memset(_holdings, 0, _holding_length * sizeof(uint16_t));
 }
 
@@ -83,41 +85,36 @@ void SlaveRtu::handler() {
 			uint8_t length_tx = 1;
 			uint8_t exception = 0;
 
-			do {
-				if (this->isFunctionSupportted(_buff_rx[1]) == false) {
-					exception = 0x01;
-					break;
-				}
-
-				switch (_buff_rx[1]) {
-				case 0x01:
-					exception = responseReadCoils(&length_tx);
-					break;
-				case 0x02:
-					exception = responseReadBitInputs(&length_tx);
-					break;
-				case 0x03:
-					exception = responseReadHoldings(&length_tx);
-					break;
-				case 0x04:
-					exception = responseReadShortInputs(&length_tx);
-					break;
-				case 0x05:
-					exception = responseWriteSingleCoil(&length_tx);
-					break;
-				case 0x06:
-					exception = responseWriteSingleHolding(&length_tx);
-					break;
-				case 0x0f:
-					exception = responseWriteMultipleCoils(length_rx,
-						&length_tx);
-					break;
-				case 0x10:
-					exception = responseWriteMultipleHoldings(length_rx,
-						&length_tx);
-					break;
-				}
-			} while (false);
+			switch (_buff_rx[1]) {
+			case 0x01:
+				exception = responseReadCoils(&length_tx);
+				break;
+			case 0x02:
+				exception = responseReadBitInputs(&length_tx);
+				break;
+			case 0x03:
+				exception = responseReadHoldings(&length_tx);
+				break;
+			case 0x04:
+				exception = responseReadShortInputs(&length_tx);
+				break;
+			case 0x05:
+				exception = responseWriteSingleCoil(&length_tx);
+				break;
+			case 0x06:
+				exception = responseWriteSingleHolding(&length_tx);
+				break;
+			case 0x0f:
+				exception = responseWriteMultipleCoils(length_rx, &length_tx);
+				break;
+			case 0x10:
+				exception = responseWriteMultipleHoldings(length_rx,
+					&length_tx);
+				break;
+			default:
+				exception = 0x01;
+				break;
+			}
 
 			if (exception) {
 				_buff_tx[1] += 0x80;
@@ -148,16 +145,6 @@ bool SlaveRtu::checkFrameCrc(const uint8_t *p, uint8_t length) {
 	uint16_t crc0 = crc.calc(p, length - 2);
 	uint16_t crc1 = p[length - 2] | (p[length - 1] << 8);
 	return crc0 == crc1;
-}
-
-bool SlaveRtu::isFunctionSupportted(uint8_t function) {
-	uint8_t *p = _supportted_functions;
-
-	do {
-		if (function == *p++) return true;
-	} while (*p);
-
-	return false;
 }
 
 void SlaveRtu::appendCrcAndReply(uint8_t length_tx) {
@@ -338,7 +325,7 @@ uint8_t SlaveRtu::responseWriteMultipleHoldings(uint8_t length_rx,
 
 	for (uint8_t i = 0; i < quantity; i++) {
 		_holdings[address + i] =
-		make16(_buff_rx[7 + i + i], _buff_rx[8 + i + i]);
+			make16(_buff_rx[7 + i + i], _buff_rx[8 + i + i]);
 	}
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
