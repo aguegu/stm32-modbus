@@ -13,18 +13,19 @@ SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address) :
 
 	_bit_inputs = NULL;
 	_bit_input_length = 0;
-	this->initBitInputs(16);
 
 	_short_inputs = NULL;
 	_short_input_length = 0;
-	this->initShortInputs(8);
 
 	_coils = NULL;
 	_coil_length = 0;
-	this->initCoils(32);
 
 	_holdings = NULL;
 	_holding_length = 0;
+
+	this->initBitInputs(16);
+	this->initShortInputs(8);
+	this->initCoils(32);
 	this->initHoldings(16);
 }
 
@@ -277,7 +278,6 @@ uint8_t SlaveRtu::onWriteMultipleCoils(uint8_t length_rx,
 }
 
 uint8_t SlaveRtu::onReadShortInputs(uint8_t * p_length_tx) {
-
 	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
 	if (!quantity || quantity > 0x07d) return 0x03;
 
@@ -305,7 +305,6 @@ uint16_t SlaveRtu::getShortInput(uint16_t index) {
 }
 
 uint8_t SlaveRtu::onReadHoldings(uint8_t * p_length_tx) {
-
 	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
 	if (!quantity || quantity > 0x07d) return 0x03;
 
