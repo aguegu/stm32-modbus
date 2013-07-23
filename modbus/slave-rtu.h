@@ -29,6 +29,11 @@ public:
 	void handler();
 	void handleTimIrq();
 
+	void initBitInputs(uint16_t length);
+	void initShortInputs(uint16_t length);
+	void initCoils(uint16_t length);
+	void initHoldings(uint16_t length);
+
 	void setBitInput(uint16_t index, BitAction state);
 	BitAction getBitInput(uint16_t index);
 
@@ -52,7 +57,7 @@ private:
 
 	const uint8_t _address;
 
-	uint16_t _coil_length;
+	int16_t _coil_length;
 	uint8_t * _coils;
 
 	uint16_t _bit_input_length;	// Discrete Inputs
@@ -67,18 +72,16 @@ private:
 	bool checkFrameCrc(const uint8_t *p, uint8_t length);
 	void appendCrcAndReply(uint8_t length_tx);
 
-	uint8_t responseReadBitInputs(uint8_t * p_length_tx);
-	uint8_t responseReadShortInputs(uint8_t * p_length_tx);
+	uint8_t onReadBitInputs(uint8_t * p_length_tx);
+	uint8_t onReadShortInputs(uint8_t * p_length_tx);
 
-	uint8_t responseReadCoils(uint8_t * p_length_tx);
-	uint8_t responseWriteSingleCoil(uint8_t * p_length_tx);
-	uint8_t responseWriteMultipleCoils(uint8_t length_rx,
-		uint8_t * p_length_tx);
+	uint8_t onReadCoils(uint8_t * p_length_tx);
+	uint8_t onWriteSingleCoil(uint8_t * p_length_tx);
+	uint8_t onWriteMultipleCoils(uint8_t length_rx, uint8_t * p_length_tx);
 
-	uint8_t responseReadHoldings(uint8_t * p_length_tx);
-	uint8_t responseWriteSingleHolding(uint8_t * p_length_tx);
-	uint8_t responseWriteMultipleHoldings(uint8_t length_rx,
-		uint8_t * p_length_tx);
+	uint8_t onReadHoldings(uint8_t * p_length_tx);
+	uint8_t onWriteSingleHolding(uint8_t * p_length_tx);
+	uint8_t onWriteMultipleHoldings(uint8_t length_rx, uint8_t * p_length_tx);
 };
 
 #endif /* SLAVE_RTU_H_ */

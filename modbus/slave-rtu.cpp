@@ -11,27 +11,21 @@ SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address) :
 		_usart(usart), _tim(tim), _address(address) {
 	_is_receiving = true;
 
-	_coil_length = 32;
-	uint8_t coils_byte_size = (_coil_length + 7) >> 3;
-	_coils = (uint8_t *) malloc(coils_byte_size * sizeof(uint8_t));
-	assert_param(_coils);
-	memset(_coils, 0, coils_byte_size);
+	_bit_inputs = NULL;
+	_bit_input_length = 0;
+	this->initBitInputs(16);
 
-	_bit_input_length = 16;
-	uint8_t bit_input_byte_size = (_bit_input_length + 7) >> 3;
-	_bit_inputs = (uint8_t *) malloc(bit_input_byte_size * sizeof(uint8_t));
-	assert_param(_bit_inputs);
-	memset(_bit_inputs, 0, bit_input_byte_size);
+	_short_inputs = NULL;
+	_short_input_length = 0;
+	this->initShortInputs(8);
 
-	_short_input_length = 8;
-	_short_inputs = (uint16_t *) malloc(_short_input_length * sizeof(uint16_t));
-	assert_param(_short_inputs);
-	memset(_short_inputs, 0, _short_input_length * sizeof(uint16_t));
+	_coils = NULL;
+	_coil_length = 0;
+	this->initCoils(32);
 
-	_holding_length = 16;
-	_holdings = (uint16_t *) malloc(_holding_length * sizeof(uint16_t));
-	assert_param(_holdings);
-	memset(_holdings, 0, _holding_length * sizeof(uint16_t));
+	_holdings = NULL;
+	_holding_length = 0;
+	this->initHoldings(16);
 }
 
 SlaveRtu::~SlaveRtu() {
@@ -40,6 +34,45 @@ SlaveRtu::~SlaveRtu() {
 
 	free(_coils);
 	free(_holdings);
+}
+
+void SlaveRtu::initBitInputs(uint16_t length) {
+	if (_bit_inputs) free(_bit_inputs);
+
+	_bit_input_length = length;
+	uint8_t bit_input_byte_size = (_bit_input_length + 7) >> 3;
+	_bit_inputs = (uint8_t *) malloc(bit_input_byte_size * sizeof(uint8_t));
+
+	assert_param(_bit_inputs);
+	memset(_bit_inputs, 0, bit_input_byte_size);
+}
+
+void SlaveRtu::initShortInputs(uint16_t length) {
+	if (_short_inputs) free(_short_inputs);
+
+	_short_input_length = length;
+	_short_inputs = (uint16_t *) malloc(_short_input_length * sizeof(uint16_t));
+	assert_param(_short_inputs);
+	memset(_short_inputs, 0, _short_input_length * sizeof(uint16_t));
+}
+
+void SlaveRtu::initCoils(uint16_t length) {
+	if (_coils) free(_coils);
+
+	_coil_length = length;
+	uint8_t coils_byte_size = (_coil_length + 7) >> 3;
+	_coils = (uint8_t *) malloc(coils_byte_size * sizeof(uint8_t));
+	assert_param(_coils);
+	memset(_coils, 0, coils_byte_size);
+}
+
+void SlaveRtu::initHoldings(uint16_t length) {
+	if (_holdings) free(_holdings);
+
+	_holding_length = length;
+	_holdings = (uint16_t *) malloc(_holding_length * sizeof(uint16_t));
+	assert_param(_holdings);
+	memset(_holdings, 0, _holding_length * sizeof(uint16_t));
 }
 
 void SlaveRtu::init() {
@@ -87,29 +120,28 @@ void SlaveRtu::handler() {
 
 			switch (_buff_rx[1]) {
 			case 0x01:
-				exception = responseReadCoils(&length_tx);
+				exception = onReadCoils(&length_tx);
 				break;
 			case 0x02:
-				exception = responseReadBitInputs(&length_tx);
+				exception = onReadBitInputs(&length_tx);
 				break;
 			case 0x03:
-				exception = responseReadHoldings(&length_tx);
+				exception = onReadHoldings(&length_tx);
 				break;
 			case 0x04:
-				exception = responseReadShortInputs(&length_tx);
+				exception = onReadShortInputs(&length_tx);
 				break;
 			case 0x05:
-				exception = responseWriteSingleCoil(&length_tx);
+				exception = onWriteSingleCoil(&length_tx);
 				break;
 			case 0x06:
-				exception = responseWriteSingleHolding(&length_tx);
+				exception = onWriteSingleHolding(&length_tx);
 				break;
 			case 0x0f:
-				exception = responseWriteMultipleCoils(length_rx, &length_tx);
+				exception = onWriteMultipleCoils(length_rx, &length_tx);
 				break;
 			case 0x10:
-				exception = responseWriteMultipleHoldings(length_rx,
-					&length_tx);
+				exception = onWriteMultipleHoldings(length_rx, &length_tx);
 				break;
 			default:
 				exception = 0x01;
@@ -164,7 +196,7 @@ BitAction SlaveRtu::getCoil(uint16_t index) {
 	return bitRead(_coils[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
 }
 
-uint8_t SlaveRtu::responseReadCoils(uint8_t * p_length_tx) {
+uint8_t SlaveRtu::onReadCoils(uint8_t * p_length_tx) {
 
 	uint16_t address_length = make16(_buff_rx[4], _buff_rx[5]);
 	if (!address_length || address_length > 0x07d0) return 0x03;
@@ -193,7 +225,7 @@ BitAction SlaveRtu::getBitInput(uint16_t index) {
 	return bitRead(_bit_inputs[index >> 3],index & 0x07) ? Bit_SET : Bit_RESET;
 }
 
-uint8_t SlaveRtu::responseReadBitInputs(uint8_t * p_length_tx) {
+uint8_t SlaveRtu::onReadBitInputs(uint8_t * p_length_tx) {
 
 	uint16_t length = make16(_buff_rx[4], _buff_rx[5]);
 	if (!length || length > 0x07d0) return 0x03;
@@ -212,7 +244,7 @@ uint8_t SlaveRtu::responseReadBitInputs(uint8_t * p_length_tx) {
 	return 0;
 }
 
-uint8_t SlaveRtu::responseWriteSingleCoil(uint8_t * p_length_tx) {
+uint8_t SlaveRtu::onWriteSingleCoil(uint8_t * p_length_tx) {
 	uint16_t val = make16(_buff_rx[4], _buff_rx[5]);
 	if (val && val != 0xff00) return 0x03;
 
@@ -226,7 +258,7 @@ uint8_t SlaveRtu::responseWriteSingleCoil(uint8_t * p_length_tx) {
 	return 0;
 }
 
-uint8_t SlaveRtu::responseWriteMultipleCoils(uint8_t length_rx,
+uint8_t SlaveRtu::onWriteMultipleCoils(uint8_t length_rx,
 	uint8_t * p_length_tx) {
 	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
 	if (!quantity || quantity > 0x07b0) return 0x03;
@@ -237,14 +269,14 @@ uint8_t SlaveRtu::responseWriteMultipleCoils(uint8_t length_rx,
 
 	for (uint16_t i = 0; i < quantity; i++)
 		this->setCoil(address++,
-			bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
+		bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
 	return 0;
 }
 
-uint8_t SlaveRtu::responseReadShortInputs(uint8_t * p_length_tx) {
+uint8_t SlaveRtu::onReadShortInputs(uint8_t * p_length_tx) {
 
 	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
 	if (!quantity || quantity > 0x07d) return 0x03;
@@ -272,7 +304,7 @@ uint16_t SlaveRtu::getShortInput(uint16_t index) {
 	return _short_inputs[index];
 }
 
-uint8_t SlaveRtu::responseReadHoldings(uint8_t * p_length_tx) {
+uint8_t SlaveRtu::onReadHoldings(uint8_t * p_length_tx) {
 
 	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
 	if (!quantity || quantity > 0x07d) return 0x03;
@@ -300,7 +332,7 @@ uint16_t SlaveRtu::getHolding(uint16_t index) {
 	return _holdings[index];
 }
 
-uint8_t SlaveRtu::responseWriteSingleHolding(uint8_t * p_length_tx) {
+uint8_t SlaveRtu::onWriteSingleHolding(uint8_t * p_length_tx) {
 	uint16_t val = make16(_buff_rx[4], _buff_rx[5]);
 
 	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
@@ -313,7 +345,7 @@ uint8_t SlaveRtu::responseWriteSingleHolding(uint8_t * p_length_tx) {
 	return 0;
 }
 
-uint8_t SlaveRtu::responseWriteMultipleHoldings(uint8_t length_rx,
+uint8_t SlaveRtu::onWriteMultipleHoldings(uint8_t length_rx,
 	uint8_t * p_length_tx) {
 	uint16_t quantity = make16(_buff_rx[4], _buff_rx[5]);
 	if (!quantity || quantity > 0x7b) return 0x03;
@@ -325,7 +357,7 @@ uint8_t SlaveRtu::responseWriteMultipleHoldings(uint8_t length_rx,
 
 	for (uint8_t i = 0; i < quantity; i++) {
 		_holdings[address + i] =
-			make16(_buff_rx[7 + i + i], _buff_rx[8 + i + i]);
+		make16(_buff_rx[7 + i + i], _buff_rx[8 + i + i]);
 	}
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
