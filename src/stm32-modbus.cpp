@@ -5,7 +5,7 @@ Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
 
 Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
 
-Node slave(usart, t1, 0x01);
+Node slave(usart, t1, 0x02);
 
 void setup() {
 
