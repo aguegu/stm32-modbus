@@ -25,12 +25,14 @@ class SlaveRtu {
 public:
 	SlaveRtu(Usart & usart, Tim & tim, uint8_t address);
 	virtual ~SlaveRtu();
+
 	void init();
 	void handler();
 	void handleTimIrq();
 
 	void initBitInputs(uint16_t length);
 	void initShortInputs(uint16_t length);
+
 	void initCoils(uint16_t length);
 	void initHoldings(uint16_t length);
 
@@ -69,9 +71,9 @@ private:
 
 	const uint8_t _address;
 
-	uint8_t * _coils;
 	uint8_t * _bit_inputs;
 	uint16_t * _short_inputs;
+	uint8_t * _coils;
 	uint16_t * _holdings;
 
 	bool checkFrameCrc(const uint8_t *p, uint8_t length);

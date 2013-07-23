@@ -94,13 +94,13 @@ void SlaveRtu::init() {
 }
 
 void SlaveRtu::handler() {
-	extern Gpio led_blue;
+	//extern Gpio led_blue;
 
 	static uint16_t length_rx = 0;
 
 	if (_usart.available()) {
 		_buff_rx[length_rx++] = _usart.read();
-		led_blue.set(Bit_SET);
+		//led_blue.set(Bit_SET);
 		_tim.setCounter(0x0000);
 		_tim.setState(ENABLE);
 	}
@@ -164,13 +164,13 @@ void SlaveRtu::handler() {
 }
 
 void SlaveRtu::handleTimIrq() {
-	extern Gpio led_blue;
+	//extern Gpio led_blue;
 
 	if (_tim.getITStatus(TIM_IT_Update) == SET) {
 		_tim.clearITPendingBit(TIM_IT_Update);
 		_tim.setState(DISABLE);
 		_is_receiving = false;
-		led_blue.set(Bit_RESET);
+		//led_blue.set(Bit_RESET);
 	}
 }
 
@@ -267,14 +267,14 @@ uint8_t SlaveRtu::onWriteMultipleCoils(uint8_t length_rx,
 	if (!length || length > 0x07b0) return 0x03;
 	if (length_rx - 9 != _buff_rx[6]) return 0x03;
 
-	uint16_t address = make16(_buff_rx[2], _buff_rx[3]);
-	if (address + length >= _coil_length) return 0x02;
+	uint16_t index = make16(_buff_rx[2], _buff_rx[3]);
+	if (index + length > _coil_length) return 0x02;
 
 	for (uint16_t i = 0; i < length; i++)
-		this->setCoil(address++,
-		bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
+		this->setCoil(index + i,
+			bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
 
-	if (updateCoils(address, length)) return 0x04;
+	if (updateCoils(index, length)) return 0x04;
 
 	memcpy(_buff_tx + 2, _buff_rx + 2, 4);
 	*p_length_tx = 6;
