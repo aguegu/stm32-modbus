@@ -80,9 +80,7 @@ private:
 
 	uint8_t responseReadHoldings(uint8_t * p_length_tx);
 	uint8_t responseWriteSingleHolding(uint8_t * p_length_tx);
-
 	uint8_t responseWriteMultipleHoldings(uint8_t length_rx, uint8_t * p_length_tx);
-
 };
 
 #endif /* SLAVE_RTU_H_ */
