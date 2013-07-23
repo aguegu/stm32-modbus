@@ -68,4 +68,11 @@ print x.read_float(6, 3, 4)
 x.write_string(10, "hello", 3)
 print x.read_string(10, 3, 3)
 
+02050000ff008C09
+020500000000CDf9
+
+00050000ff008DEB
+000500000000CC1B
+
+
 '''
