@@ -13,6 +13,8 @@ print x.read_bit(0, 1)
 x.write_bit(0, 0, 15)
 print x.read_bit(0, 1)
 
+print x.read_register(0, 0, 4, False)
+'''
 print x.write_register(15, 123, 1, 6, False)
 print x.read_register(15, 1, 3, False)
 print x.write_register(0, 0, 0, 6, False)
@@ -35,7 +37,6 @@ print x.read_float(6, 3, 4)
 x.write_string(10, "hello", 3)
 print x.read_string(10, 3, 3)
 
-'''
 02050000ff008C09
 020500000000CDf9
 
