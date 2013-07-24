@@ -31,7 +31,7 @@ private:
 	uint8_t updateBitInputs(uint16_t index, uint16_t length);
 	uint8_t updateShortInputs(uint16_t index, uint16_t length);
 	uint8_t updateCoils(uint16_t index, uint16_t length);
-	uint8_t updateHoldings(uint16_t index, uint16_t length) {return 0;};
+	uint8_t updateHoldings(uint16_t index, uint16_t length) {return 0;}
 };
 
 #endif /* NODE_H_ */
