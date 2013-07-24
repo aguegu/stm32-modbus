@@ -335,7 +335,7 @@ uint8_t SlaveRtu::onWriteSingleHolding(uint8_t * p_length_tx) {
 	uint16_t val = make16(_buff_rx[4], _buff_rx[5]);
 
 	uint16_t index = make16(_buff_rx[2], _buff_rx[3]);
-	if (index >= _coil_length) return 0x02;
+	if (index >= _holding_length) return 0x02;
 
 	this->setHolding(index, val);
 

@@ -14,7 +14,7 @@ Node::Node(Usart & usart, Tim & tim, uint8_t address) :
 	this->initShortInputs(0);
 
 	this->initCoils(1);
-	this->initHoldings(0);
+	this->initHoldings(16);
 
 	_dis = (Gpio **) malloc(_bit_input_length * sizeof(Gpio *));
 
