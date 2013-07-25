@@ -25,9 +25,12 @@ Node::Node(Usart & usart, Tim & tim, uint8_t address) :
 
 	_short_input_pins = (Gpio **) malloc(_short_input_length * sizeof(Gpio *));
 	_short_input_pins[0] = new Gpio(GPIOA, GPIO_Pin_5, RCC_APB2Periph_GPIOA);
-	_short_input_pins[2] = new Gpio(GPIOA, GPIO_Pin_6, RCC_APB2Periph_GPIOA);
+	_short_input_pins[1] = new Gpio(GPIOA, GPIO_Pin_6, RCC_APB2Periph_GPIOA);
 
 	_adc = new Adc(ADC1, RCC_APB2Periph_ADC1);
+	_adc_channels = new uint8_t[2];
+	_adc_channels[0] = ADC_Channel_5;
+	_adc_channels[1] = ADC_Channel_6;
 }
 
 Node::~Node() {
@@ -43,10 +46,11 @@ Node::~Node() {
 
 	for (uint8_t i = 0; i < _short_input_length; i++)
 		delete _short_input_pins[i];
-
 	delete[] _short_input_pins;
 
 	delete _adc;
+
+	delete _adc_channels;
 }
 
 void Node::init() {
@@ -61,11 +65,11 @@ void Node::init() {
 	for (uint8_t i = 0; i < _short_input_length; i++)
 		_short_input_pins[i]->init(GPIO_Mode_AIN);
 
-	_adc->init(ADC_Mode_Independent, ENABLE, DISABLE,
-	ADC_ExternalTrigConv_None);
-	_adc->configChannel(ADC_Channel_5, 1);
-	_adc->configChannel(ADC_Channel_6, 2);
+	_adc->init(ADC_Mode_Independent, DISABLE, DISABLE,
+		ADC_ExternalTrigConv_None);
 	_adc->calibrate();
+
+	_adc->configChannel(ADC_Channel_5, 1);
 }
 
 uint8_t Node::updateBitInputs(uint16_t index, uint16_t length) {
@@ -81,9 +85,11 @@ uint8_t Node::updateCoils(uint16_t index, uint16_t length) {
 }
 
 uint8_t Node::updateShortInputs(uint16_t index, uint16_t length) {
-	_adc->startSoftwareConvert();
-	for (uint16_t i = 0; i < length; i++)
+	for (uint16_t i = 0; i < length; i++) {
+		_adc->configChannel(_adc_channels[index+i], 1);
+		_adc->startSoftwareConvert();
 		this->setShortInput(index + i, _adc->getValue());
+	}
 	return 0;
 }
 

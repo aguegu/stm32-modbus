@@ -27,6 +27,7 @@ private:
 	Gpio ** _short_input_pins;
 
 	Adc * _adc;
+	uint8_t * _adc_channels;
 
 	uint8_t updateBitInputs(uint16_t index, uint16_t length);
 	uint8_t updateShortInputs(uint16_t index, uint16_t length);

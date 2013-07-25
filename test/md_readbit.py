@@ -14,6 +14,7 @@ x.write_bit(0, 0, 15)
 print x.read_bit(0, 1)
 
 print x.read_register(0, 0, 4, False)
+print x.read_register(1, 0, 4, False)
 '''
 print x.write_register(15, 123, 1, 6, False)
 print x.read_register(15, 1, 3, False)
