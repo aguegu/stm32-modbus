@@ -36,12 +36,10 @@ Node::Node(UsartRs485 & usart, Tim & tim, uint8_t address) :
 Node::~Node() {
 	for (uint8_t i = 0; i < _bit_input_length; i++)
 		delete _bit_input_pins[i];
-
 	delete[] _bit_input_pins;
 
 	for (uint8_t i = 0; i < _coil_length; i++)
 		delete _coil_pins[i];
-
 	delete[] _coil_pins;
 
 	for (uint8_t i = 0; i < _short_input_length; i++)
@@ -49,7 +47,6 @@ Node::~Node() {
 	delete[] _short_input_pins;
 
 	delete _adc;
-
 	delete _adc_channels;
 }
 
