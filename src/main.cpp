@@ -1,8 +1,12 @@
 #include "stm32-template.h"
+#include "usart-rs485/usart-rs485.h"
 
 int main(void) __attribute__((weak));
 
-Usart usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd);
+Gpio usart_de(GPIOA, GPIO_Pin_8, RCC_APB2Periph_GPIOA);
+Gpio usart_re(GPIOA, GPIO_Pin_8, RCC_APB2Periph_GPIOA);
+
+UsartRs485 usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd, usart_de, usart_re);
 
 
 int main(void) {

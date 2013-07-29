@@ -17,7 +17,7 @@
 
 class Node: public SlaveRtu {
 public:
-	Node(Usart & usart, Tim & tim, uint8_t address);
+	Node(UsartRs485 & usart, Tim & tim, uint8_t address);
 	~Node();
 	void init();
 

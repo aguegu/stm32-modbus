@@ -7,7 +7,7 @@
 
 #include "node.h"
 
-Node::Node(Usart & usart, Tim & tim, uint8_t address) :
+Node::Node(UsartRs485 & usart, Tim & tim, uint8_t address) :
 		SlaveRtu(usart, tim, address) {
 	this->initBitInputs(2);
 	this->initShortInputs(2);

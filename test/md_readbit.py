@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import minimalmodbus
 
-x = minimalmodbus.Instrument('/dev/ttyUSB0', 2) 
+x = minimalmodbus.Instrument('/dev/ttyUSB1', 2) 
 x.serial.parity = 'E'
 
 print x.read_bit(0, 2)
@@ -15,6 +15,7 @@ print x.read_bit(0, 1)
 
 print x.read_register(0, 0, 4, False)
 print x.read_register(1, 0, 4, False)
+
 '''
 print x.write_register(15, 123, 1, 6, False)
 print x.read_register(15, 1, 3, False)

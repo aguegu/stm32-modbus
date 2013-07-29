@@ -7,7 +7,7 @@
 
 #include "slave-rtu.h"
 
-SlaveRtu::SlaveRtu(Usart & usart, Tim & tim, uint8_t address) :
+SlaveRtu::SlaveRtu(UsartRs485 & usart, Tim & tim, uint8_t address) :
 		_usart(usart), _tim(tim), _address(address) {
 	_is_receiving = true;
 
@@ -79,7 +79,7 @@ void SlaveRtu::initHoldings(uint16_t length) {
 void SlaveRtu::init() {
 
 	_usart.init(19200, USART_WordLength_9b, USART_StopBits_1,
-	USART_Parity_Even);
+		USART_Parity_Even);
 
 	_tim.init(20000, (770000UL / 19200));
 	_tim.configureIT(TIM_IT_Update);
@@ -179,6 +179,7 @@ void SlaveRtu::appendCrcAndReply(uint8_t length_tx) {
 	_buff_tx[length_tx] = lowByte(v);
 	_buff_tx[length_tx + 1] = highByte(v);
 	_usart.write(_buff_tx, length_tx + 2);
+	_usart.flush();
 }
 
 void SlaveRtu::setCoil(uint16_t index, BitAction state) {
@@ -266,7 +267,7 @@ uint8_t SlaveRtu::onWriteMultipleCoils(uint8_t length_rx,
 
 	for (uint16_t i = 0; i < length; i++)
 		this->setCoil(index + i,
-			bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
+		bitRead(_buff_rx[7 + (i >> 3)], i & 0x07) ? Bit_SET : Bit_RESET);
 
 	if (updateCoils(index, length)) return 0x04;
 

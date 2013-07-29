@@ -1,14 +1,15 @@
 #include "stm32-template.h"
+#include "usart-rs485/usart-rs485.h"
 #include "node.h"
 
-Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
+extern UsartRs485 usart;
 
+Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
 Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
 
 Node slave(usart, t1, 0x02);
 
 void setup() {
-
 	led_green.init(GPIO_Mode_Out_PP);
 
 	nvic.configure(TIM2_IRQn, 1, 3, ENABLE);
