@@ -9,83 +9,52 @@
 
 Node::Node(UsartRs485 & usart, Tim & tim, uint8_t address) :
 		SlaveRtu(usart, tim, address) {
-	this->initBitInputs(2);
-	this->initShortInputs(2);
+	this->initBitInputs(0);
+	this->initShortInputs(0);
+	this->initCoils(0);
+	this->initHoldings(4);
 
-	this->initCoils(1);
-	this->initHoldings(16);
+	_pins = (Gpio **) malloc(_holding_length * sizeof(Gpio *));
 
-	_bit_input_pins = (Gpio **) malloc(_bit_input_length * sizeof(Gpio *));
+	_pins[0] = new Gpio(GPIOB, GPIO_Pin_6, RCC_APB2Periph_GPIOB);
+	_pins[1] = new Gpio(GPIOB, GPIO_Pin_7, RCC_APB2Periph_GPIOB);
+	_pins[2] = new Gpio(GPIOB, GPIO_Pin_8, RCC_APB2Periph_GPIOB);
+	_pins[3] = new Gpio(GPIOB, GPIO_Pin_9, RCC_APB2Periph_GPIOB);
 
-	_bit_input_pins[0] = new Gpio(GPIOA, GPIO_Pin_1, RCC_APB2Periph_GPIOA);
-	_bit_input_pins[1] = new Gpio(GPIOA, GPIO_Pin_0, RCC_APB2Periph_GPIOA);
+	_ocs = (TimOc **) malloc(_holding_length / sizeof(TimOc *));
 
-	_coil_pins = (Gpio **) malloc(_coil_length * sizeof(Gpio *));
-	_coil_pins[0] = new Gpio(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
-
-	_short_input_pins = (Gpio **) malloc(_short_input_length * sizeof(Gpio *));
-	_short_input_pins[0] = new Gpio(GPIOA, GPIO_Pin_5, RCC_APB2Periph_GPIOA);
-	_short_input_pins[1] = new Gpio(GPIOA, GPIO_Pin_6, RCC_APB2Periph_GPIOA);
-
-	_adc = new Adc(ADC1, RCC_APB2Periph_ADC1);
-	_adc_channels = new uint8_t[2];
-	_adc_channels[0] = ADC_Channel_5;
-	_adc_channels[1] = ADC_Channel_6;
+	_ocs[0] = new TimOc(TIM4, TIM_OC1Init, TIM_SetCompare1);
+	_ocs[1] = new TimOc(TIM4, TIM_OC2Init, TIM_SetCompare2);
+	_ocs[2] = new TimOc(TIM4, TIM_OC3Init, TIM_SetCompare3);
+	_ocs[3] = new TimOc(TIM4, TIM_OC4Init, TIM_SetCompare4);
 }
 
 Node::~Node() {
-	for (uint8_t i = 0; i < _bit_input_length; i++)
-		delete _bit_input_pins[i];
-	delete[] _bit_input_pins;
+	for (uint8_t i = 0; i < _holding_length; i++) {
+		delete _pins[i];
+		delete _ocs[i];
+	}
 
-	for (uint8_t i = 0; i < _coil_length; i++)
-		delete _coil_pins[i];
-	delete[] _coil_pins;
-
-	for (uint8_t i = 0; i < _short_input_length; i++)
-		delete _short_input_pins[i];
-	delete[] _short_input_pins;
-
-	delete _adc;
-	delete _adc_channels;
+	delete[] _pins;
+	delete[] _ocs;
 }
 
 void Node::init() {
-	this->SlaveRtu::init();
 
-	for (uint8_t i = 0; i < _bit_input_length; i++)
-		_bit_input_pins[i]->init(GPIO_Mode_IPD);
+	Tim t4(TIM4, RCC_APB1Periph_TIM4, RCC_APB1PeriphClockCmd);
+	t4.init(1000000, 20000);
 
-	for (uint8_t i = 0; i < _coil_length; i++)
-		_coil_pins[i]->init(GPIO_Mode_Out_PP);
-
-	for (uint8_t i = 0; i < _short_input_length; i++)
-		_short_input_pins[i]->init(GPIO_Mode_AIN);
-
-	_adc->init(ADC_Mode_Independent, DISABLE, DISABLE,
-		ADC_ExternalTrigConv_None);
-	_adc->calibrate();
-
-	_adc->configChannel(ADC_Channel_5, 1);
+	for (uint8_t i = 0; i < _holding_length; i++) {
+		_pins[i]->init(GPIO_Mode_AF_PP);
+		_ocs[i]->init(TIM_OCMode_PWM1, TIM_OutputState_Enable,
+				TIM_OutputNState_Disable);
+		_ocs[i]->setCompare(1000);
+	}
 }
 
-uint8_t Node::updateBitInputs(uint16_t index, uint16_t length) {
-	for (uint16_t i = 0; i < length; i++)
-		this->setBitInput(index + i, _bit_input_pins[index + i]->getInput());
-	return 0;
-}
-
-uint8_t Node::updateCoils(uint16_t index, uint16_t length) {
-	for (uint16_t i = 0; i < length; i++)
-		_coil_pins[index + i]->set(this->getCoil(index + i));
-	return 0;
-}
-
-uint8_t Node::updateShortInputs(uint16_t index, uint16_t length) {
+uint8_t Node::updateHoldings(uint16_t index, uint16_t length) {
 	for (uint16_t i = 0; i < length; i++) {
-		_adc->configChannel(_adc_channels[index+i], 1);
-		_adc->startSoftwareConvert();
-		this->setShortInput(index + i, _adc->getValue());
+		_ocs[index+i]->setCompare(this->getHolding(index + i));
 	}
 	return 0;
 }

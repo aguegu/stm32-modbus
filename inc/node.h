@@ -12,8 +12,7 @@
 
 #include "modbus/slave-rtu.h"
 #include "gpio/gpio.h"
-#include "adc/adc.h"
-#include "dma/dma.h"
+#include "tim/tim.h"
 
 class Node: public SlaveRtu {
 public:
@@ -22,17 +21,9 @@ public:
 	void init();
 
 private:
-	Gpio ** _bit_input_pins;
-	Gpio ** _coil_pins;
-	Gpio ** _short_input_pins;
-
-	Adc * _adc;
-	uint8_t * _adc_channels;
-
-	uint8_t updateBitInputs(uint16_t index, uint16_t length);
-	uint8_t updateShortInputs(uint16_t index, uint16_t length);
-	uint8_t updateCoils(uint16_t index, uint16_t length);
-	uint8_t updateHoldings(uint16_t index, uint16_t length) {return 0;}
+	Gpio ** _pins;
+	TimOc ** _ocs;
+	uint8_t updateHoldings(uint16_t index, uint16_t length);
 };
 
 #endif /* NODE_H_ */
