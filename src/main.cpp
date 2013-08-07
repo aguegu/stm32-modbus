@@ -19,7 +19,6 @@ int main(void) {
 void init() {
 
 	SysTick_Config(SystemCoreClock / 1000);	// Tick per ms
-	delay(1000);
 
 	Gpio usart_tx(GPIOA, GPIO_Pin_9,
 	RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
