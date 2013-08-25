@@ -7,9 +7,8 @@
 
 #include "slave-rtu.h"
 
-SlaveRtu::SlaveRtu(UsartRs485 & usart, Tim & tim, uint8_t address) :
-		_usart(usart), _tim(tim), _address(address) {
-	_is_receiving = true;
+SlaveRtu::SlaveRtu(UsartRs485Modbus & usart, uint8_t address) :
+		_usart(usart), _address(address) {
 
 	_bit_inputs = NULL;
 	_bit_input_length = 0;
@@ -77,20 +76,8 @@ void SlaveRtu::initHoldings(uint16_t length) {
 }
 
 void SlaveRtu::init() {
-
 	_usart.init(19200, USART_WordLength_9b, USART_StopBits_1,
 		USART_Parity_Even);
-
-	_tim.init(20000, (770000UL / 19200));
-	_tim.configureIT(TIM_IT_Update);
-	_tim.configureArrPreload();
-
-	_tim.setCounter(0x0000);
-	_tim.setState(ENABLE);
-
-	nvic.configureGroup(NVIC_PriorityGroup_1);
-	nvic.configure(TIM1_UP_TIM16_IRQn, 0, 3, ENABLE);
-	nvic.configure(USART1_IRQn, 1, 2, ENABLE);
 }
 
 void SlaveRtu::handler() {
@@ -98,11 +85,9 @@ void SlaveRtu::handler() {
 
 	if (_usart.available()) {
 		_buff_rx[length_rx++] = _usart.read();
-		_tim.setCounter(0x0000);
-		_tim.setState(ENABLE);
 	}
 
-	if (_is_receiving == false) {
+	if (_usart.isReceiving() == false) {
 		memset(_buff_tx, 0, _BUFF_LENGTH);
 
 		do {
@@ -155,16 +140,8 @@ void SlaveRtu::handler() {
 			if (_buff_tx[0]) this->appendCrcAndReply(length_tx);
 		} while (false);
 
-		_is_receiving = true;
+		_usart.setReady();
 		length_rx = 0;
-	}
-}
-
-void SlaveRtu::handleTimIrq() {
-	if (_tim.getITStatus(TIM_IT_Update) == SET) {
-		_tim.clearITPendingBit(TIM_IT_Update);
-		_tim.setState(DISABLE);
-		_is_receiving = false;
 	}
 }
 

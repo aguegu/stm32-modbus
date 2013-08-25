@@ -13,8 +13,7 @@
 
 #include "stm32f10x.h"
 
-#include "usart-rs485/usart-rs485.h"
-#include "tim/tim.h"
+#include "usart-rs485-modbus.h"
 #include "nvic/nvic.h"
 #include "gpio/gpio.h"
 #include "common/bit_op.h"
@@ -23,7 +22,7 @@
 
 class SlaveRtu {
 public:
-	SlaveRtu(UsartRs485 & usart, Tim & tim, uint8_t address);
+	SlaveRtu(UsartRs485Modbus & usart, uint8_t address);
 	virtual ~SlaveRtu();
 
 	void init();
@@ -61,10 +60,8 @@ protected:
 	virtual uint8_t updateHoldings(uint16_t index, uint16_t length) {return 0;};
 
 private:
-	UsartRs485 & _usart;
-	Tim & _tim;
+	UsartRs485Modbus & _usart;
 
-	volatile bool _is_receiving;
 	static const uint16_t _BUFF_LENGTH = 256;
 	uint8_t _buff_rx[_BUFF_LENGTH];
 	uint8_t _buff_tx[_BUFF_LENGTH];

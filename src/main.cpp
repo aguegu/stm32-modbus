@@ -1,12 +1,14 @@
 #include "stm32-template.h"
-#include "usart-rs485/usart-rs485.h"
+#include "modbus/usart-rs485-modbus.h"
 
 int main(void) __attribute__((weak));
 
 Gpio usart_de(GPIOA, GPIO_Pin_8, RCC_APB2Periph_GPIOA);
 Gpio usart_re(GPIOA, GPIO_Pin_8, RCC_APB2Periph_GPIOA);
 
-UsartRs485 usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd, usart_de, usart_re);
+Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
+UsartRs485Modbus usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd,
+		usart_de, usart_re, t1);
 
 int main(void) {
 	init();
@@ -19,7 +21,6 @@ int main(void) {
 void init() {
 
 	SysTick_Config(SystemCoreClock / 1000);	// Tick per ms
-	delay(1000);
 
 	Gpio usart_tx(GPIOA, GPIO_Pin_9,
 	RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO);
@@ -32,6 +33,10 @@ void init() {
 	setvbuf(stdin, NULL, _IONBF, 0);
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
+
+	nvic.configureGroup(NVIC_PriorityGroup_1);
+	nvic.configure(TIM1_UP_TIM16_IRQn, 0, 3, ENABLE);
+	nvic.configure(USART1_IRQn, 1, 2, ENABLE);
 }
 
 void delay(u32 ms) {

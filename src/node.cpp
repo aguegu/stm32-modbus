@@ -7,8 +7,8 @@
 
 #include "node.h"
 
-Node::Node(UsartRs485 & usart, Tim & tim, uint8_t address) :
-		SlaveRtu(usart, tim, address) {
+Node::Node(UsartRs485Modbus & usart, uint8_t address) :
+		SlaveRtu(usart, address) {
 	this->initBitInputs(2);
 	this->initShortInputs(2);
 
@@ -63,7 +63,7 @@ void Node::init() {
 		_short_input_pins[i]->init(GPIO_Mode_AIN);
 
 	_adc->init(ADC_Mode_Independent, DISABLE, DISABLE,
-		ADC_ExternalTrigConv_None);
+	ADC_ExternalTrigConv_None);
 	_adc->calibrate();
 
 	_adc->configChannel(ADC_Channel_5, 1);
@@ -83,7 +83,7 @@ uint8_t Node::updateCoils(uint16_t index, uint16_t length) {
 
 uint8_t Node::updateShortInputs(uint16_t index, uint16_t length) {
 	for (uint16_t i = 0; i < length; i++) {
-		_adc->configChannel(_adc_channels[index+i], 1);
+		_adc->configChannel(_adc_channels[index + i], 1);
 		_adc->startSoftwareConvert();
 		this->setShortInput(index + i, _adc->getValue());
 	}
