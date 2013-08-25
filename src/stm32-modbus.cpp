@@ -5,6 +5,7 @@
 extern UsartRs485Modbus usart;
 
 Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
+Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
 
 Node slave(usart, 0x02);
 

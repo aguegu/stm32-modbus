@@ -26,8 +26,7 @@ void UsartRs485Modbus::init(uint32_t baudrate, uint16_t word_length,
 	this->UsartRs485::init(baudrate, word_length, stop_bits, parity, mode,
 			hardware_flow_control);
 
-	// 3.5T =  11 * 3.5 / baudrate
-	// t = 3.5T / (1 / 20000)
+	// t = 11 * 3.5 / baudrate / (1 / 20000)
 	_tim.init(20000, (770000UL / baudrate));
 	_tim.configureIT(TIM_IT_Update);
 	_tim.configureArrPreload();
@@ -37,7 +36,7 @@ void UsartRs485Modbus::init(uint32_t baudrate, uint16_t word_length,
 }
 
 void UsartRs485Modbus::onRXNE() {
-	this->Usart::onRXNE();
+	this->UsartRs485::onRXNE();
 	_tim.setCounter(0x0000);
 	_tim.setState(ENABLE);
 }

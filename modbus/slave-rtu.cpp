@@ -76,8 +76,7 @@ void SlaveRtu::initHoldings(uint16_t length) {
 }
 
 void SlaveRtu::init() {
-	_usart.init(19200, USART_WordLength_9b, USART_StopBits_1,
-		USART_Parity_Even);
+	_usart.init();
 }
 
 void SlaveRtu::handler() {
