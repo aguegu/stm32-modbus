@@ -2,12 +2,12 @@
 #include "usart-rs485/usart-rs485.h"
 #include "node.h"
 
-extern UsartRs485 usart;
+extern UsartRs485Modbus usart;
 
 Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
-Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
+Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
 
-Node slave(usart, t1, 0x02);
+Node slave(usart, 0x02);
 
 void setup() {
 	led_green.init(GPIO_Mode_Out_PP);
