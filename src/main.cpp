@@ -1,4 +1,5 @@
 #include "stm32-template.h"
+#include "gpio-array/gpio-array.h"
 #include "node.h"
 
 int main(void) __attribute__((weak));
@@ -10,15 +11,37 @@ Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
 UsartRs485Modbus usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd,
 		usart_de, usart_re, t1);
 
-extern UsartRs485Modbus usart;
-
 Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
 Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
 
 Node slave(usart, 0x02);
 
+Gpio dip_0(GPIOB, GPIO_Pin_14, RCC_APB2Periph_GPIOB);
+Gpio dip_1(GPIOB, GPIO_Pin_13, RCC_APB2Periph_GPIOB);
+Gpio dip_2(GPIOB, GPIO_Pin_12, RCC_APB2Periph_GPIOB);
+Gpio dip_3(GPIOB, GPIO_Pin_11, RCC_APB2Periph_GPIOB);
+Gpio dip_4(GPIOB, GPIO_Pin_10, RCC_APB2Periph_GPIOB);
+Gpio dip_5(GPIOB, GPIO_Pin_0, RCC_APB2Periph_GPIOB);
+Gpio dip_6(GPIOB, GPIO_Pin_1, RCC_APB2Periph_GPIOB);
+GpioArray dips(7);
+
+void setup() {
+	dips.setGpio(0, dip_0);
+	dips.setGpio(1, dip_1);
+	dips.setGpio(2, dip_2);
+	dips.setGpio(3, dip_3);
+	dips.setGpio(4, dip_4);
+	dips.setGpio(5, dip_5);
+	dips.setGpio(6, dip_6);
+
+	dips.init(GPIO_Mode_IPU);
+	slave.setAddress(dips.getInput());
+}
+
+
 int main(void) {
 	init();
+	setup();
 	slave.init();
 
 	for (;;)

@@ -1,7 +1,13 @@
 #!/usr/bin/env python
+import sys
 import minimalmodbus
 
-x = minimalmodbus.Instrument('/dev/ttyUSB0', 2) 
+if len(sys.argv) == 2:
+	slave = int(sys.argv[1], 0)
+else:
+	slave = 0x02
+
+x = minimalmodbus.Instrument('/dev/ttyUSB0', slave) 
 x.serial.parity = 'E'
 
 x.debug = True
