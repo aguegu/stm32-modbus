@@ -26,6 +26,7 @@ public:
 	virtual ~SlaveRtu();
 
 	void init();
+	void setAddress(uint8_t address);
 	void handler();
 	void handleTimIrq();
 
@@ -66,7 +67,7 @@ private:
 	uint8_t _buff_rx[_BUFF_LENGTH];
 	uint8_t _buff_tx[_BUFF_LENGTH];
 
-	const uint8_t _address;
+	uint8_t _address;
 
 	uint8_t * _bit_inputs;
 	uint16_t * _short_inputs;

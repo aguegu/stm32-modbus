@@ -26,7 +26,6 @@ int main(void) {
 }
 
 void init() {
-
 	SysTick_Config(SystemCoreClock / 1000);	// Tick per ms
 
 	Gpio usart_tx(GPIOA, GPIO_Pin_9,

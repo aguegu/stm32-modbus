@@ -79,6 +79,10 @@ void SlaveRtu::init() {
 	_usart.init();
 }
 
+void SlaveRtu::setAddress(uint8_t address) {
+	_address = address;
+}
+
 void SlaveRtu::handler() {
 	static uint16_t length_rx = 0;
 
