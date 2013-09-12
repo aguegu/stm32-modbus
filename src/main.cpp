@@ -4,8 +4,8 @@
 
 int main(void) __attribute__((weak));
 
-Gpio usart_de(GPIOA, GPIO_Pin_8, RCC_APB2Periph_GPIOA);
-Gpio usart_re(GPIOA, GPIO_Pin_8, RCC_APB2Periph_GPIOA);
+Gpio usart_de(GPIOB, GPIO_Pin_15, RCC_APB2Periph_GPIOB);
+Gpio usart_re(GPIOB, GPIO_Pin_15, RCC_APB2Periph_GPIOB);
 
 Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
 UsartRs485Modbus usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd,
