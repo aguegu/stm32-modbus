@@ -1,5 +1,5 @@
 #include "stm32-template.h"
-#include "modbus/usart-rs485-modbus.h"
+#include "node.h"
 
 int main(void) __attribute__((weak));
 
@@ -10,12 +10,19 @@ Tim t1(TIM1, RCC_APB2Periph_TIM1, RCC_APB2PeriphClockCmd);
 UsartRs485Modbus usart(USART1, RCC_APB2Periph_USART1, RCC_APB2PeriphClockCmd,
 		usart_de, usart_re, t1);
 
+extern UsartRs485Modbus usart;
+
+Gpio led_green(GPIOC, GPIO_Pin_9, RCC_APB2Periph_GPIOC);
+Gpio led_blue(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
+
+Node slave(usart, 0x02);
+
 int main(void) {
 	init();
-	setup();
+	slave.init();
 
 	for (;;)
-		loop();
+		slave.handler();
 }
 
 void init() {
@@ -37,6 +44,14 @@ void init() {
 	nvic.configureGroup(NVIC_PriorityGroup_1);
 	nvic.configure(TIM1_UP_TIM16_IRQn, 0, 3, ENABLE);
 	nvic.configure(USART1_IRQn, 1, 2, ENABLE);
+
+	led_green.init(GPIO_Mode_Out_PP);
+
+	nvic.configure(TIM2_IRQn, 1, 3, ENABLE);
+	Tim t2(TIM2, RCC_APB1Periph_TIM2, RCC_APB1PeriphClockCmd);
+	t2.init(1000, 1000);
+	t2.configureIT(TIM_IT_Update);
+	t2.setState();
 }
 
 void delay(u32 ms) {
