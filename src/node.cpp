@@ -22,8 +22,8 @@ Node::Node(UsartRs485Modbus & usart, uint8_t address) :
 
 	_bit_input_pins = (Gpio **) malloc(_bit_input_length * sizeof(Gpio *));
 
-	_bit_input_pins[0] = new Gpio(GPIOA, GPIO_Pin_1, RCC_APB2Periph_GPIOA);
-	_bit_input_pins[1] = new Gpio(GPIOA, GPIO_Pin_0, RCC_APB2Periph_GPIOA);
+	_bit_input_pins[0] = new Gpio(GPIOA, GPIO_Pin_0, RCC_APB2Periph_GPIOA);
+	_bit_input_pins[1] = new Gpio(GPIOA, GPIO_Pin_1, RCC_APB2Periph_GPIOA);
 
 	_coil_pins = (Gpio **) malloc(_coil_length * sizeof(Gpio *));
 	_coil_pins[0] = new Gpio(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
