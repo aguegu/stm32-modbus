@@ -28,6 +28,8 @@ private:
 
 	Adc * _adc;
 	uint8_t * _adc_channels;
+	const static uint8_t _uuid[];
+	const static uint8_t _lengths[];
 
 	uint8_t updateBitInputs(uint16_t index, uint16_t length);
 	uint8_t updateShortInputs(uint16_t index, uint16_t length);

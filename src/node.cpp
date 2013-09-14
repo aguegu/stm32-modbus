@@ -7,13 +7,18 @@
 
 #include "node.h"
 
+const uint8_t Node::_uuid[] = "665247461d1c11e395bc73bf3a254a5f";
+
+const uint8_t Node::_lengths[] = { 2, 1, 2, 16 };
+
 Node::Node(UsartRs485Modbus & usart, uint8_t address) :
 		SlaveRtu(usart, address) {
-	this->initBitInputs(2);
-	this->initShortInputs(2);
 
-	this->initCoils(1);
-	this->initHoldings(16);
+	this->initBitInputs(_lengths[0]);
+	this->initCoils(_lengths[1]);
+
+	this->initShortInputs(16 + 4 + _lengths[2]);
+	this->initHoldings(_lengths[3]);
 
 	_bit_input_pins = (Gpio **) malloc(_bit_input_length * sizeof(Gpio *));
 
@@ -23,7 +28,7 @@ Node::Node(UsartRs485Modbus & usart, uint8_t address) :
 	_coil_pins = (Gpio **) malloc(_coil_length * sizeof(Gpio *));
 	_coil_pins[0] = new Gpio(GPIOC, GPIO_Pin_8, RCC_APB2Periph_GPIOC);
 
-	_short_input_pins = (Gpio **) malloc(_short_input_length * sizeof(Gpio *));
+	_short_input_pins = (Gpio **) malloc(2 * sizeof(Gpio *));
 	_short_input_pins[0] = new Gpio(GPIOA, GPIO_Pin_5, RCC_APB2Periph_GPIOA);
 	_short_input_pins[1] = new Gpio(GPIOA, GPIO_Pin_6, RCC_APB2Periph_GPIOA);
 
@@ -31,6 +36,13 @@ Node::Node(UsartRs485Modbus & usart, uint8_t address) :
 	_adc_channels = new uint8_t[2];
 	_adc_channels[0] = ADC_Channel_5;
 	_adc_channels[1] = ADC_Channel_6;
+
+	for (uint8_t i = 0; i < 16; i++) {
+		this->setShortInput(i, make16(_uuid[i + i], _uuid[i + i + 1]));
+	}
+
+	for (uint8_t i = 0; i < 4; i++)
+		this->setShortInput(i + 16, _lengths[i]);
 }
 
 Node::~Node() {
@@ -42,7 +54,7 @@ Node::~Node() {
 		delete _coil_pins[i];
 	delete[] _coil_pins;
 
-	for (uint8_t i = 0; i < _short_input_length; i++)
+	for (uint8_t i = 0; i < 2; i++)
 		delete _short_input_pins[i];
 	delete[] _short_input_pins;
 
@@ -59,7 +71,7 @@ void Node::init() {
 	for (uint8_t i = 0; i < _coil_length; i++)
 		_coil_pins[i]->init(GPIO_Mode_Out_PP);
 
-	for (uint8_t i = 0; i < _short_input_length; i++)
+	for (uint8_t i = 0; i < 2; i++)
 		_short_input_pins[i]->init(GPIO_Mode_AIN);
 
 	_adc->init(ADC_Mode_Independent, DISABLE, DISABLE,
@@ -83,9 +95,11 @@ uint8_t Node::updateCoils(uint16_t index, uint16_t length) {
 
 uint8_t Node::updateShortInputs(uint16_t index, uint16_t length) {
 	for (uint16_t i = 0; i < length; i++) {
-		_adc->configChannel(_adc_channels[index + i], 1);
-		_adc->startSoftwareConvert();
-		this->setShortInput(index + i, _adc->getValue());
+		if (index + i >= 20) {
+			_adc->configChannel(_adc_channels[index - 20 + i], 1);
+			_adc->startSoftwareConvert();
+			this->setShortInput(index + i, _adc->getValue());
+		}
 	}
 	return 0;
 }
