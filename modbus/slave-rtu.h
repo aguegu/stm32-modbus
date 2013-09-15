@@ -60,6 +60,7 @@ protected:
 	virtual uint8_t updateCoils(uint16_t index, uint16_t length) {return 0;};
 	virtual uint8_t updateHoldings(uint16_t index, uint16_t length) {return 0;};
 
+	virtual void routine(){};
 private:
 	UsartRs485Modbus & _usart;
 

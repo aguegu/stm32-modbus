@@ -53,6 +53,7 @@ Node::Node(UsartRs485Modbus & usart, uint8_t address) :
 	this->setHolding(4, 1);
 	this->setHolding(6, 1);
 	this->setHolding(8, 1);
+	this->setHolding(10, 7);
 
 	this->setHolding(3, 0);
 	this->setHolding(5, 0);
@@ -96,18 +97,6 @@ void Node::init() {
 		_led_pins[i]->init(GPIO_Mode_Out_PP);
 }
 
-//uint8_t Node::updateCoils(uint16_t index, uint16_t length) {
-//	for (uint16_t i = 0; i < length; i++) {
-//		uint16_t k = index + i;
-//		switch(k) {
-//		case 1:
-//
-//		}
-//		_coil_pins[index + i]->set(this->getCoil(index + i));
-//	}
-//	return 0;
-//}
-
 uint8_t Node::updateShortInputs(uint16_t index, uint16_t length) {
 	for (uint16_t i = 0; i < length; i++) {
 		uint16_t k = index + i;
@@ -135,19 +124,62 @@ uint8_t Node::updateHoldings(uint16_t index, uint16_t length) {
 			_lamp->set(!this->getHolding(j));
 			break;
 		case 3:
-			_led_pins[0]->set(!this->getHolding(j));
+			if (this->getHolding(11) == 0)
+				_led_pins[0]->set(!this->getHolding(j));
 			break;
 		case 5:
-			_led_pins[1]->set(!this->getHolding(j));
+			if (this->getHolding(11) == 0)
+				_led_pins[1]->set(!this->getHolding(j));
 			break;
 		case 7:
-			_led_pins[2]->set(!this->getHolding(j));
+			if (this->getHolding(11) == 0)
+				_led_pins[2]->set(!this->getHolding(j));
 			break;
 		case 9:
-			_led_pins[3]->set(!this->getHolding(j));
+			if (this->getHolding(11) == 0)
+				_led_pins[3]->set(!this->getHolding(j));
 			break;
 		}
 	}
 
 	return 0;
+}
+
+void Node::routine() {
+	extern vu32 millis;
+	static bool running = true;
+	if ((millis & 0xff) == 0) {
+		if (running) {
+			switch (this->getHolding(11)) {
+			case 1:
+				static uint8_t t = 1;
+				_led_pins[0]->set(!(t & 0x01));
+				_led_pins[1]->set(!(t & 0x02));
+				_led_pins[2]->set(!(t & 0x04));
+				_led_pins[3]->set(!(t & 0x08));
+				t <<= 1;
+				if (t >= 0x10) t = 0x01;
+				break;
+			case 2:
+				static uint8_t y = 0x0f;
+				_led_pins[0]->set(!(y & 0x01));
+				_led_pins[1]->set(!(y & 0x02));
+				_led_pins[2]->set(!(y & 0x04));
+				_led_pins[3]->set(!(y & 0x08));
+				y = ~y;
+				break;
+			case 3:
+				static uint8_t x = 0x03;
+				_led_pins[0]->set(!(x & 0x01));
+				_led_pins[1]->set(!(x & 0x02));
+				_led_pins[2]->set(!(x & 0x04));
+				_led_pins[3]->set(!(x & 0x08));
+				x = x == 0x03 ? 0x0c : 0x03;
+				break;
+			}
+		}
+		running = false;
+	} else
+		running = true;
+
 }

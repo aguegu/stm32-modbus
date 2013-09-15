@@ -35,6 +35,8 @@ private:
 
 	uint8_t updateShortInputs(uint16_t index, uint16_t length);
 	uint8_t updateHoldings(uint16_t index, uint16_t length);
+
+	void routine();
 };
 
 #endif /* NODE_H_ */

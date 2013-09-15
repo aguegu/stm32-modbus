@@ -146,6 +146,8 @@ void SlaveRtu::handler() {
 		_usart.setReady();
 		length_rx = 0;
 	}
+
+	routine();
 }
 
 bool SlaveRtu::checkFrameCrc(const uint8_t *p, uint8_t length) {

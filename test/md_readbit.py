@@ -51,7 +51,15 @@ print "led[3].value: %d" % x.read_register(9, 0, 3, False)
 
 
 time.sleep(0.2)
-x.write_register(1, 0, 0, 6, False)
+#x.write_register(1, 0, 0, 6, False)
+
+x.write_register(11, 1, 0, 6, False)
+time.sleep(3)
+x.write_register(11, 2, 0, 6, False)
+
+time.sleep(3)
+x.write_register(11, 3, 0, 6, False)
+
 
 
 
