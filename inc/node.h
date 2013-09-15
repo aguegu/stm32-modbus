@@ -22,19 +22,19 @@ public:
 	void init();
 
 private:
-	Gpio ** _bit_input_pins;
-	Gpio ** _coil_pins;
-	Gpio ** _short_input_pins;
-
+	Gpio ** _adc_pins;
 	Adc * _adc;
+
 	uint8_t * _adc_channels;
+
+	Gpio * _lamp;
+	Gpio ** _led_pins;
+
 	const static uint8_t _uuid[];
 	const static uint8_t _lengths[];
 
-	uint8_t updateBitInputs(uint16_t index, uint16_t length);
 	uint8_t updateShortInputs(uint16_t index, uint16_t length);
-	uint8_t updateCoils(uint16_t index, uint16_t length);
-	uint8_t updateHoldings(uint16_t index, uint16_t length) {return 0;}
+	uint8_t updateHoldings(uint16_t index, uint16_t length);
 };
 
 #endif /* NODE_H_ */

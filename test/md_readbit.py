@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import minimalmodbus
+import time
 
 if len(sys.argv) == 2:
 	slave = int(sys.argv[1], 0)
@@ -18,13 +19,43 @@ print "short_input: %d" % x.read_register(18, 0, 4, False)
 print "holding: %d" % x.read_register(19, 0, 4, False)
 print
 
-print "bit_input [0]: %d" % x.read_bit(0, 2)
-print "bit_input [1]: %d" % x.read_bit(1, 2)
+print "short inputs:"
+print "[0].type: %d" % x.read_register(20, 0, 4, False)
+print "[0].value: %d" % x.read_register(21, 0, 4, False)
 print
 
-x.write_bit(0, 1, 5)
-print "coil [0]: " + str(x.read_bit(0, 1))
+print "[1].type: %d" % x.read_register(22, 0, 4, False)
+print "[1].value: %d" % x.read_register(23, 0, 4, False)
+print
 
+#x.write_register(0, 1, 6, False)
+print "lamp.type: %d" % x.read_register(0, 0, 3, False)
+x.write_register(1, 1, 0, 6, False)
+print "lamp.value: %d" % x.read_register(1, 0, 3, False)
+
+print "led[0].type: %d" % x.read_register(2, 0, 3, False)
+x.write_register(3, 1, 0, 6, False)
+print "led[0].value: %d" % x.read_register(3, 0, 3, False)
+
+print "led[1].type: %d" % x.read_register(4, 0, 3, False)
+x.write_register(5, 1, 0, 6, False)
+print "led[1].value: %d" % x.read_register(5, 0, 3, False)
+
+print "led[2].type: %d" % x.read_register(6, 0, 3, False)
+x.write_register(7, 1, 0, 6, False)
+print "led[2].value: %d" % x.read_register(7, 0, 3, False)
+
+print "led[3].type: %d" % x.read_register(8, 0, 3, False)
+x.write_register(9, 1, 0, 6, False)
+print "led[3].value: %d" % x.read_register(9, 0, 3, False)
+
+
+time.sleep(0.2)
+x.write_register(1, 0, 0, 6, False)
+
+
+
+'''
 x.write_bit(0, 0, 15)
 print "coil [0]: " + str(x.read_bit(0, 1))
 
@@ -40,7 +71,6 @@ print
 print "uuid: %s" % x.read_string(0, 16, 4)
 
 
-'''
 x.write_string(10, "hello", 3)
 print x.read_string(10, 3, 3)
 
