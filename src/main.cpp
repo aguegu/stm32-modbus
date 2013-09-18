@@ -38,7 +38,6 @@ void setup() {
 	slave.setAddress(dips.getInput());
 }
 
-
 int main(void) {
 	init();
 	setup();
