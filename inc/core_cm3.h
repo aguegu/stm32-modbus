@@ -44,7 +44,7 @@
  *     Info 754: local structure member '<some, not used in the HAL>' (line 109, file ./cm3_core.h) not referenced
  * .
  *   - Error 750: \n
- *     #define __CM3_CORE_H__ \n
+ *     "#define __CM3_CORE_H__ \n"
  *     Info 750: local macro '__CM3_CORE_H__' (line 43, file./cm3_core.h) not referenced
  * .
  *   - Error 528: \n
@@ -69,7 +69,7 @@
 /*lint -e751 */
 
 
-/** @addtogroup CMSIS_CM3_core_definitions CM3 Core Definitions
+/** @defgroup CMSIS_CM3_core_definitions CM3 Core Definitions
   This file defines all structures and symbols for CMSIS core:
     - CMSIS version number
     - Cortex-M core registers and bitfields
@@ -1708,7 +1708,6 @@ static __INLINE uint32_t SysTick_Config(uint32_t ticks)
 
 
 
-
 /* ##################################    Reset function  ############################################ */
 
 /**
@@ -1729,6 +1728,7 @@ static __INLINE void NVIC_SystemReset(void)
 
 
 
+
 /* ##################################### Debug In/Output function ########################################### */
 
 /** @addtogroup CMSIS_CM3_CoreDebugInterface CMSIS CM3 Core Debug Interface
@@ -1741,7 +1741,6 @@ static __INLINE void NVIC_SystemReset(void)
 
 extern volatile int ITM_RxBuffer;                    /*!< variable to receive characters                             */
 #define             ITM_RXBUFFER_EMPTY    0x5AA55AA5 /*!< value identifying ITM_RxBuffer is ready for next character */
-
 
 /**
  * @brief  Outputs a character via the ITM channel 0

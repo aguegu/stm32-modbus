@@ -7,6 +7,12 @@
 
 #include "slave-rtu.h"
 
+/**
+ *
+ *
+ *
+ */
+
 SlaveRtu::SlaveRtu(UsartRs485Modbus & usart, uint8_t address) :
 		_usart(usart), _address(address) {
 

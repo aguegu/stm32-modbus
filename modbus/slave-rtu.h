@@ -20,6 +20,11 @@
 
 #include "crc.h"
 
+/**
+ * SlaveRtu class
+ * get me
+ */
+
 class SlaveRtu {
 public:
 	SlaveRtu(UsartRs485Modbus & usart, uint8_t address);

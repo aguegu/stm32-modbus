@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    GPIO/IOToggle/system_stm32f10x.c
+  * @file    system_stm32f10x.c
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    08-April-2011
@@ -206,7 +206,6 @@ static void SetSysClock(void);
   *         Initialize the Embedded Flash Interface, the PLL and update the 
   *         SystemCoreClock variable.
   * @note   This function should be used only after reset.
-  * @param  None
   * @retval None
   */
 void SystemInit (void)
@@ -300,7 +299,6 @@ void SystemInit (void)
   *                
   *         - The result of this function could be not correct when using fractional
   *           value for HSE crystal.
-  * @param  None
   * @retval None
   */
 void SystemCoreClockUpdate (void)

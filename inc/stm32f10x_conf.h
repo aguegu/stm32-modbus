@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    GPIO/IOToggle/stm32f10x_conf.h 
+  * @file    stm32f10x_conf.h
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    08-April-2011
